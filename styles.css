@@ -1,25 +1,16 @@
 
 :root{
-  --bg:#0e0f12;
-  --card:rgba(255,255,255,.06);
-  --text:rgba(255,255,255,.92);
-  --muted:rgba(255,255,255,.6);
-  --line:rgba(255,255,255,.12);
+  --bg:#f6f6f4;
+  --card:rgba(0,0,0,.04);
+  --text:rgba(0,0,0,.88);
+  --muted:rgba(0,0,0,.6);
+  --line:rgba(0,0,0,.12);
   --radius:0px;
   --max:1400px;
   --gap:16px;
   --link-color:#3604FE;
 }
 
-@media (prefers-color-scheme: light){
-  :root{
-    --bg:#f6f6f4;
-    --card:rgba(0,0,0,.04);
-    --text:rgba(0,0,0,.88);
-    --muted:rgba(0,0,0,.6);
-    --line:rgba(0,0,0,.12);
-  }
-}
 
 *{box-sizing:border-box}
 body{
