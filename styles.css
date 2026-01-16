@@ -25,6 +25,10 @@ body{
 
 a{color:var(--link-color);text-decoration:none}
 
+a:hover{
+  text-decoration: underline;
+}
+
 .wrap{
   max-width: var(--max);
   margin: 0 auto;
