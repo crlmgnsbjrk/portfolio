@@ -5,12 +5,15 @@
 
   const header = document.querySelector(".site-header");
   const year = document.getElementById("y");
+  const originalTitle = document.title;
+  let titleIndex = 0;
 
   if (year) {
     year.textContent = String(new Date().getFullYear());
   }
 
   if (!header) {
+    startTitleMarquee();
     return;
   }
 
@@ -67,4 +70,17 @@
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
   updateHeaderColor();
+  startTitleMarquee();
+
+  function startTitleMarquee() {
+    if (!originalTitle) {
+      return;
+    }
+    const padding = " · ";
+    const text = originalTitle + padding;
+    window.setInterval(() => {
+      titleIndex = (titleIndex + 1) % text.length;
+      document.title = text.slice(titleIndex) + text.slice(0, titleIndex);
+    }, 200);
+  }
 })();

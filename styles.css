@@ -24,7 +24,7 @@
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height:1.5;
@@ -37,7 +37,7 @@ a{color:var(--link-color);text-decoration:none}
 .wrap{
   max-width: var(--max);
   margin: 0 auto;
-  padding: 48px 16px 80px;
+  padding: 0 16px 80px;
 }
 
 header{
@@ -71,6 +71,17 @@ header{
 .brand strong{
   display:block;
   font-size:13px;
+  font-weight:400;
+}
+
+.brand a{
+  color: inherit;
+  text-decoration:none;
+}
+
+.brand a:hover{
+  color: var(--link-color);
+  text-decoration: underline;
 }
 
 .brand span{
@@ -94,7 +105,7 @@ nav a.active{
 }
 
 h1{
-  font-size:18px;
+  font-size:21px;
   line-height:1.2;
   margin: 0 0 32px;
   max-width: none;
@@ -110,7 +121,7 @@ h2{
 }
 
 h3{
-  font-size:14px;
+  font-size:18px;
   line-height:1.2;
   margin: 0 0 16px;
   font-weight: 400;
@@ -123,6 +134,19 @@ h3{
   letter-spacing:-.01em;
   max-width: 22ch;
   grid-column: 1 / -1;
+}
+
+.hero-mega{
+  font-size:200px;
+  line-height:0.95;
+  letter-spacing:-.02em;
+}
+
+.hero-mega-mono{
+  font-size:200px;
+  line-height:0.95;
+  letter-spacing:-.02em;
+  font-family: 'JetBrainsMono-Regular', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 .about-grid{
@@ -174,7 +198,6 @@ h3{
 }
 
 .card:hover{
-  transform: translateY(-2px);
   border-color: rgba(255,255,255,.24);
 }
 
@@ -198,6 +221,7 @@ h3{
   width:100%;
   aspect-ratio: 16 / 9;
   background: rgba(255,255,255,.04);
+  position:relative;
 }
 
 .thumb img{
@@ -205,6 +229,48 @@ h3{
   height:100%;
   object-fit:cover;
   display:block;
+  transition: filter .2s ease;
+}
+
+.thumb::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.45);
+  opacity:0;
+  transition: opacity .2s ease;
+}
+
+.thumb::after{
+  content:"⌕";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:32px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:21px;
+  line-height:1;
+  color:#ffffff;
+  background: rgba(0,0,0,.6);
+  opacity:0;
+  transition: opacity .2s ease, transform .2s ease;
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
+.card:hover .thumb::after{
+  opacity:1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.card:hover .thumb::before{
+  opacity:1;
+}
+
+.card:hover .thumb img{
+  filter: grayscale(100%);
 }
 
 .title{
@@ -228,7 +294,7 @@ h3{
   line-height:1.2;
   margin: 0 0 21px;
   letter-spacing:-.01em;
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight:400;
 }
 
@@ -251,7 +317,7 @@ h3{
 
 .copy{
   grid-column: 4 / span 6;
-  font-size:14px;
+  font-size:13px;
   margin:0 0 6px;
   max-width: 70ch;
 }
