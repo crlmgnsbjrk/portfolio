@@ -390,3 +390,14 @@ body.fixed-footer footer{
   transform: translateX(-50%);
   margin-top: 0;
 }
+
+@media (max-width: 800px){
+  body.fixed-footer footer{
+    position: static;
+    left: auto;
+    bottom: auto;
+    width: auto;
+    transform: none;
+    margin-top: 64px;
+  }
+}
