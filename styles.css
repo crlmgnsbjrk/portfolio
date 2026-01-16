@@ -132,7 +132,7 @@ h3{
   line-height:1.05;
   margin: 0 0 48px;
   letter-spacing:-.01em;
-  max-width: 22ch;
+  max-width: 100%;
   grid-column: 1 / -1;
 }
 
@@ -214,6 +214,10 @@ h3{
 
   .grid{
     grid-template-columns: 1fr;
+  }
+
+  .hero{
+    max-width: none;
   }
 }
 
