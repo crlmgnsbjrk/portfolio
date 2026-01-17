@@ -72,6 +72,41 @@
   updateHeaderColor();
   startTitleMarquee();
 
+  initProjectNav();
+
+  function initProjectNav() {
+    const nav = document.querySelector("[data-project-nav]");
+    if (!nav) {
+      return;
+    }
+    const match = window.location.pathname.match(/p-(\d+)\.html$/);
+    if (!match) {
+      return;
+    }
+    const current = Number(match[1]);
+    const prev = current - 1;
+    const next = current + 1;
+    const maxProject = 6;
+    const prevLink = nav.querySelector("[data-prev]");
+    const nextLink = nav.querySelector("[data-next]");
+
+    if (prevLink) {
+      if (prev < 1) {
+        prevLink.href = `p-${maxProject}.html`;
+      } else {
+        prevLink.href = `p-${prev}.html`;
+      }
+    }
+
+    if (nextLink) {
+      if (next > maxProject) {
+        nextLink.href = "p-1.html";
+      } else {
+        nextLink.href = `p-${next}.html`;
+      }
+    }
+  }
+
   function startTitleMarquee() {
     if (!originalTitle) {
       return;
