@@ -73,6 +73,7 @@
   startTitleMarquee();
 
   initProjectNav();
+  initStockholmTime();
 
   function initProjectNav() {
     const nav = document.querySelector("[data-project-nav]");
@@ -117,5 +118,27 @@
       titleIndex = (titleIndex + 1) % text.length;
       document.title = text.slice(titleIndex) + text.slice(0, titleIndex);
     }, 200);
+  }
+
+  function initStockholmTime() {
+    const time = document.getElementById("stockholm-time");
+    if (!time) {
+      return;
+    }
+    const formatter = new Intl.DateTimeFormat("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Europe/Stockholm",
+      timeZoneName: "short",
+    });
+
+    function updateTime() {
+      const now = new Date();
+      time.textContent = formatter.format(now);
+      time.dateTime = now.toISOString();
+    }
+
+    updateTime();
+    window.setInterval(updateTime, 60000);
   }
 })();

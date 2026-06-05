@@ -378,6 +378,13 @@ h3{
   max-width: 70ch;
 }
 
+.contact-meta{
+  margin: -28px 0 0;
+  font-size:13px;
+  color: var(--muted);
+  font-family: 'JetBrainsMono-Regular', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 .copy-nav{
   grid-column: 1 / -1;
   display:flex;
