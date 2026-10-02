@@ -15,7 +15,7 @@
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Archivo', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height:1.5;
@@ -125,7 +125,7 @@ h3{
   line-height:1.05;
   margin: 0 0 48px;
   letter-spacing:-.01em;
-  max-width: 22ch;
+  max-width: 30ch;
   grid-column: 1 / -1;
 }
 
@@ -350,7 +350,7 @@ h3{
   line-height:1.2;
   margin: 0 0 21px;
   letter-spacing:-.01em;
-  font-family: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Archivo', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight:400;
 }
 
@@ -421,6 +421,8 @@ h3{
 
 .media .full{
   grid-column: 1 / -1;
+  aspect-ratio: auto;
+  object-fit: contain;
 }
 
 .media .half{
