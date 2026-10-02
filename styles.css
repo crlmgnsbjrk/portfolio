@@ -430,6 +430,14 @@ h3{
   grid-column: span 6;
 }
 
+.media .credit{
+  grid-column: 1 / -1;
+  margin: calc(var(--gap) * -1 + 8px) 0 0;
+  font-size:11px;
+  color: var(--muted);
+  text-align:right;
+}
+
 .about-grid{
   display:grid;
   grid-template-columns: repeat(12, 1fr);
