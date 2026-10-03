@@ -55,11 +55,17 @@ header{
   color:inherit;
 }
 
-.site-header.header-dark{
+/* Set per element by script.js, depending on what is behind the logo and the menu */
+.site-header .brand,
+.site-header nav{
+  transition: color .15s ease;
+}
+
+.site-header .tone-dark{
   color:#000000;
 }
 
-.site-header.header-light{
+.site-header .tone-light{
   color:#ffffff;
 }
 
@@ -240,7 +246,7 @@ h3{
 .card{
   display:flex;
   flex-direction:column;
-  grid-column: span 4;
+  grid-column: span 6;
   border-radius: var(--radius);
   border: none;
   background: transparent;
@@ -277,9 +283,13 @@ h3{
   aspect-ratio: 1410 / 897;
   background: rgba(255,255,255,.04);
   position:relative;
+  overflow:hidden;
 }
 
 .thumb img{
+  /* Fill the card's fixed frame whatever the image's own proportions */
+  position:absolute;
+  inset:0;
   width:100%;
   height:100%;
   object-fit:cover;

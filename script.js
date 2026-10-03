@@ -30,54 +30,133 @@
     return;
   }
 
+  // Header text tone: the logo and the menu each turn black or white, whichever contrasts more with
+  // what is actually behind them. Behind an image or video that is read from its embedded pixel
+  // placeholder (see lqip.py), so light images get black text and dark ones white.
+  const toneTargets = [header.querySelector(".brand"), header.querySelector("nav")].filter(Boolean);
+  const placeholders = new WeakMap();
+
   function parseColor(color) {
     const match = color.match(/rgba?\(([^)]+)\)/);
     if (!match) {
       return null;
     }
-    const parts = match[1].split(",").map((part) => part.trim());
-    return [Number(parts[0]), Number(parts[1]), Number(parts[2])];
+    const parts = match[1].split(/[\s,/]+/).filter(Boolean).map(Number);
+    return [parts[0], parts[1], parts[2], parts.length > 3 ? parts[3] : 1];
   }
 
-  function getBackgroundColor(el) {
-    let current = el;
-    while (current && current !== document.documentElement) {
-      const style = window.getComputedStyle(current);
-      const bg = style.backgroundColor;
-      if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") {
-        return parseColor(bg);
+  // Relative luminance (WCAG) of an sRGB colour, 0 = black, 1 = white
+  function luminance(r, g, b) {
+    const lin = (c) => {
+      c /= 255;
+      return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  }
+
+  // Background colour of an element, blending semi-transparent layers onto what is below them
+  function backgroundLuminance(el) {
+    const layers = [];
+    for (let current = el; current; current = current.parentElement) {
+      const color = parseColor(window.getComputedStyle(current).backgroundColor);
+      if (color && color[3] > 0) {
+        layers.push(color);
+        if (color[3] >= 1) break;
       }
-      current = current.parentElement;
     }
-    return parseColor(window.getComputedStyle(document.body).backgroundColor);
+    let rgb = [255, 255, 255];
+    for (let i = layers.length - 1; i >= 0; i--) {
+      const [r, g, b, a] = layers[i];
+      rgb = [r * a + rgb[0] * (1 - a), g * a + rgb[1] * (1 - a), b * a + rgb[2] * (1 - a)];
+    }
+    return luminance(rgb[0], rgb[1], rgb[2]);
+  }
+
+  // Luminance of an image or video at a point on screen, from its placeholder; null if the point
+  // falls outside the picture (letterboxing) or the placeholder is not decoded yet
+  function mediaLuminance(el, x, y) {
+    const data = placeholders.get(el);
+    if (!data) return null;
+    const rect = el.getBoundingClientRect();
+    const naturalW = Number(el.getAttribute("width")) || el.naturalWidth || el.videoWidth;
+    const naturalH = Number(el.getAttribute("height")) || el.naturalHeight || el.videoHeight;
+    if (!naturalW || !naturalH) return null;
+
+    let w = rect.width;
+    let h = rect.height;
+    const fit = window.getComputedStyle(el).objectFit;
+    if (fit === "cover" || fit === "contain") {
+      const scaleX = rect.width / naturalW;
+      const scaleY = rect.height / naturalH;
+      const scale = fit === "cover" ? Math.max(scaleX, scaleY) : Math.min(scaleX, scaleY);
+      w = naturalW * scale;
+      h = naturalH * scale;
+    }
+    const u = (x - rect.left - (rect.width - w) / 2) / w;
+    const v = (y - rect.top - (rect.height - h) / 2) / h;
+    if (u < 0 || u >= 1 || v < 0 || v >= 1) return null;
+
+    const i = (Math.floor(v * data.height) * data.width + Math.floor(u * data.width)) * 4;
+    return luminance(data.data[i], data.data[i + 1], data.data[i + 2]);
+  }
+
+  function luminanceAt(x, y) {
+    const under = document.elementsFromPoint(x, y).find((el) => el !== header && !header.contains(el));
+    if (!under) return null;
+    if (under.tagName === "IMG" || under.tagName === "VIDEO") {
+      const fromMedia = mediaLuminance(under, x, y);
+      if (fromMedia !== null) return fromMedia;
+      return backgroundLuminance(under.parentElement);
+    }
+    return backgroundLuminance(under);
   }
 
   function updateHeaderColor() {
-    const rect = header.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = Math.min(window.innerHeight - 1, rect.bottom + 1);
-    const stack = document.elementsFromPoint(x, y);
-    const under = stack.find((el) => el !== header && !header.contains(el)) || stack[0];
-    const isMedia = under && (under.closest("img") || under.closest(".thumb") || under.closest(".media"));
-
-    if (isMedia) {
-      header.classList.toggle("header-dark", false);
-      header.classList.toggle("header-light", true);
-      return;
-    }
-
-    const rgb = getBackgroundColor(under);
-
-    if (!rgb) {
-      return;
-    }
-
-    const luminance = (0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) / 255;
-    const isLight = luminance > 0.6;
-
-    header.classList.toggle("header-dark", isLight);
-    header.classList.toggle("header-light", !isLight);
+    toneTargets.forEach((target) => {
+      const rect = target.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      // A small grid of points over the text itself
+      let sum = 0;
+      let count = 0;
+      for (const fx of [0.1, 0.5, 0.9]) {
+        for (const fy of [0.3, 0.7]) {
+          const value = luminanceAt(rect.left + rect.width * fx, rect.top + rect.height * fy);
+          if (value !== null) {
+            sum += value;
+            count++;
+          }
+        }
+      }
+      if (!count) return;
+      const L = sum / count;
+      const dark = (L + 0.05) / 0.05 >= 1.05 / (L + 0.05); // black text contrasts more than white
+      target.classList.toggle("tone-dark", dark);
+      target.classList.toggle("tone-light", !dark);
+    });
   }
+
+  // Decode every placeholder once into pixels, then re-evaluate the header
+  Promise.all(
+    [...document.querySelectorAll("[data-lqip]")].map(
+      (el) =>
+        new Promise((resolve) => {
+          const match = el.style.backgroundImage.match(/url\("?(data:[^")]+)"?\)/);
+          if (!match) return resolve();
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            placeholders.set(el, ctx.getImageData(0, 0, canvas.width, canvas.height));
+            resolve();
+          };
+          img.onerror = resolve;
+          img.src = match[1];
+        })
+    )
+  ).then(() => window.requestAnimationFrame(updateHeaderColor));
 
   const onScroll = () => window.requestAnimationFrame(updateHeaderColor);
   window.addEventListener("scroll", onScroll, { passive: true });
