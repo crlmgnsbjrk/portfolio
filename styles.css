@@ -428,6 +428,26 @@ h3{
   grid-column: span 6;
 }
 
+/* Three across in the image's own proportions, for phone screens and portrait images */
+.media .third{
+  grid-column: span 4;
+  aspect-ratio: auto;
+}
+
+/* Half width in the image's own proportions; pair two images of the same shape */
+.media .half.natural{
+  aspect-ratio: auto;
+}
+
+/* <picture> only picks AVIF or the fallback; the <img> inside stays the layout box */
+picture{
+  display: contents;
+}
+
+picture > source{
+  display: none;
+}
+
 /* Pixelated placeholder until the real image has loaded (see lqip.py and script.js) */
 img[data-lqip],
 video[data-lqip]{
@@ -472,6 +492,10 @@ video[data-lqip]{
   }
 
   .media .half{
+    grid-column: 1 / -1;
+  }
+
+  .media .third{
     grid-column: 1 / -1;
   }
 
