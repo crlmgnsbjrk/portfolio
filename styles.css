@@ -6,8 +6,8 @@
   --muted:rgba(0,0,0,.6);
   --line:rgba(0,0,0,.12);
   --radius:0px;
-  --max:1400px;
-  --gap:16px;
+  --max:none;
+  --gap:12px;
   --link-color:#3604FE;
 }
 
@@ -32,7 +32,7 @@ a:hover{
 .wrap{
   max-width: var(--max);
   margin: 0 auto;
-  padding: 0 16px 80px;
+  padding: 0 12px 80px;
 }
 
 header{
@@ -43,8 +43,8 @@ header{
   justify-content:space-between;
   align-items:flex-start;
   margin-bottom: 48px;
-  padding-top: 16px;
-  padding-bottom: 16px;
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 .site-header{
@@ -411,6 +411,7 @@ h3{
 .media img,
 .media video{
   width:100%;
+  height:auto;
   display:block;
   aspect-ratio: 16 / 9;
   object-fit:cover;
@@ -425,6 +426,22 @@ h3{
 
 .media .half{
   grid-column: span 6;
+}
+
+/* Pixelated placeholder until the real image has loaded (see lqip.py and script.js) */
+img[data-lqip],
+video[data-lqip]{
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.js [data-lqip]:not(.is-loaded){
+  image-rendering: pixelated;
+}
+
+[data-lqip].is-loaded{
+  background-image: none !important;
 }
 
 .about-grid{

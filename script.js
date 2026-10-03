@@ -12,6 +12,19 @@
     year.textContent = String(new Date().getFullYear());
   }
 
+  // Swap pixelated placeholders for the real image once it has loaded
+  document.documentElement.classList.add("js");
+  document.querySelectorAll("img[data-lqip]").forEach((img) => {
+    const done = () => img.classList.add("is-loaded");
+    if (img.complete && img.naturalWidth) done();
+    else img.addEventListener("load", done, { once: true });
+  });
+  document.querySelectorAll("video[data-lqip]").forEach((video) => {
+    const poster = new Image();
+    poster.onload = () => video.classList.add("is-loaded");
+    poster.src = video.poster;
+  });
+
   if (!header) {
     startTitleMarquee();
     return;
