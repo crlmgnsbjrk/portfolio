@@ -135,10 +135,16 @@ h3{
   grid-column: 1 / -1;
 }
 
-.hero-mega-mono{
-  font-size:200px;
-  line-height:0.95;
-  letter-spacing:-.02em;
+/* ASCII art needs fixed-width characters, the one place that is not Archivo */
+.ascii-404{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(11px, 2.2vw, 22px);
+  line-height: 1.2;
+  margin: 0 0 24px;
+}
+
+.ascii-404-link{
+  margin: 0;
 }
 
 .about-grid{
@@ -297,15 +303,6 @@ h3{
   transition: filter .2s ease;
 }
 
-.thumb::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background: rgba(0,0,0,.45);
-  opacity:0;
-  transition: opacity .2s ease;
-}
-
 .thumb::after{
   content:"⌕";
   position:absolute;
@@ -330,12 +327,19 @@ h3{
   transform: translate(-50%, -50%) scale(1);
 }
 
-.card:hover .thumb::before{
-  opacity:1;
+/* 1-bit dithered copy of the card image, drawn by script.js on first hover */
+.thumb .dither{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  image-rendering: pixelated;
+  opacity:0;
+  pointer-events:none;
 }
 
-.card:hover .thumb img{
-  filter: grayscale(100%);
+.card:hover .thumb .dither{
+  opacity:1;
 }
 
 .title{
@@ -529,7 +533,7 @@ body.fixed-footer footer{
   position: fixed;
   left: 50%;
   bottom: 32px;
-  width: min(calc(100% - 32px), var(--max));
+  width: calc(100% - 24px);
   transform: translateX(-50%);
   margin-top: 0;
 }
@@ -543,4 +547,116 @@ body.fixed-footer footer{
     transform: none;
     margin-top: 64px;
   }
+}
+
+/* Contact details scrolling by in the footer, the old way */
+.contact-marquee{
+  flex: 1 1 320px;
+  min-width: 0;
+  margin-left: 24px;
+}
+
+/* Status bar while images load */
+.load-meter{
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 20;
+  padding: 2px 6px;
+  font-size: 11px;
+  background: var(--bg);
+  color: var(--muted);
+  white-space: pre;
+  pointer-events: none;
+  transition: opacity .4s ease;
+}
+
+.load-meter.is-done{
+  opacity: 0;
+}
+
+/* Text mode (press T): the site as a 90s text browser would show it */
+.text-mode-alt{
+  display: none;
+}
+
+.text-mode body{
+  background: #ffffff;
+  color: #000000;
+  font-family: "Courier New", Courier, ui-monospace, monospace;
+}
+
+.text-mode body *{
+  font-family: inherit !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0 !important;
+  color: #000000;
+}
+
+.text-mode .wrap{
+  max-width: 80ch;
+}
+
+.text-mode .hero{
+  max-width: none;
+}
+
+.text-mode header,
+.text-mode body.fixed-footer footer{
+  position: static;
+  transform: none;
+  width: auto;
+}
+
+.text-mode header{
+  display: block;
+}
+
+.text-mode nav{
+  display: block;
+}
+
+.text-mode nav a{
+  margin-right: 1ch;
+}
+
+.text-mode .grid,
+.text-mode .project,
+.text-mode .media{
+  display: block;
+}
+
+.text-mode .thumb{
+  aspect-ratio: auto;
+}
+
+.text-mode img,
+.text-mode video,
+.text-mode .dither,
+.text-mode .load-meter,
+.text-mode .thumb::after{
+  display: none !important;
+}
+
+.text-mode .text-mode-alt{
+  display: block;
+  margin: 6px 0;
+}
+
+.text-mode h1,
+.text-mode h3,
+.text-mode strong{
+  font-weight: 700;
+}
+
+.text-mode a,
+.text-mode .site-header .tone-light,
+.text-mode .site-header .tone-dark{
+  color: #0000ee !important;
+  text-decoration: underline;
+}
+
+.text-mode a:visited{
+  color: #551a8b !important;
 }

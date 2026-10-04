@@ -25,6 +25,171 @@
     poster.src = video.poster;
   });
 
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  initTextMode();
+  initLoadMeter();
+  initScrambleNav();
+  initDitherCards();
+
+  // Press T: the whole site as a 90s text-only browser would render it
+  function initTextMode() {
+    const root = document.documentElement;
+    document.querySelectorAll("img, video").forEach((el) => {
+      const label = el.tagName === "IMG" ? el.alt : el.getAttribute("aria-label");
+      if (!label) return;
+      const alt = document.createElement("span");
+      alt.className = "text-mode-alt";
+      alt.textContent = (el.tagName === "IMG" ? "[IMG] " : "[VIDEO] ") + label;
+      (el.parentElement.tagName === "PICTURE" ? el.parentElement : el).after(alt);
+    });
+    const apply = (on) => {
+      root.classList.toggle("text-mode", on);
+      try {
+        on ? sessionStorage.setItem("textMode", "1") : sessionStorage.removeItem("textMode");
+      } catch (e) {}
+    };
+    try {
+      if (sessionStorage.getItem("textMode")) apply(true);
+    } catch (e) {}
+    document.addEventListener("keydown", (e) => {
+      if (e.key.toLowerCase() !== "t" || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      apply(!root.classList.contains("text-mode"));
+    });
+  }
+
+  // Netscape-style status bar: [████░░░░░░] 4/10 while the images in view load, then "Done"
+  function initLoadMeter() {
+    const media = [...document.querySelectorAll("img[data-lqip], video[data-lqip]")];
+    if (!media.length || !("IntersectionObserver" in window)) return;
+    const meter = document.createElement("div");
+    meter.className = "load-meter is-done";
+    meter.setAttribute("aria-hidden", "true");
+    document.body.appendChild(meter);
+
+    const requested = new Set();
+    let hideTimer;
+    const render = () => {
+      const total = requested.size;
+      const loaded = [...requested].filter((el) => el.classList.contains("is-loaded")).length;
+      if (!total) return;
+      window.clearTimeout(hideTimer);
+      if (loaded < total) {
+        const cells = Math.round((loaded / total) * 10);
+        meter.textContent = `Loading [${"█".repeat(cells)}${"░".repeat(10 - cells)}] ${loaded}/${total}`;
+        meter.classList.remove("is-done");
+      } else if (!meter.classList.contains("is-done")) {
+        meter.textContent = "Done";
+        hideTimer = window.setTimeout(() => meter.classList.add("is-done"), 900);
+      }
+    };
+    // Roughly the distance at which browsers start lazy-loading
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => entry.isIntersecting && requested.add(entry.target));
+        render();
+      },
+      { rootMargin: "1200px 0px" }
+    );
+    const changes = new MutationObserver(render);
+    media.forEach((el) => {
+      observer.observe(el);
+      changes.observe(el, { attributes: true, attributeFilter: ["class"] });
+    });
+  }
+
+  // Menu links flicker through random characters before settling on hover
+  function initScrambleNav() {
+    if (!header || reducedMotion) return;
+    const glyphs = "!<>-_\\/[]{}=+*^?#%&@$";
+    header.querySelectorAll("nav a").forEach((link) => {
+      const original = link.textContent;
+      if (!/[a-z]/i.test(original)) return;
+      let running = false;
+      link.addEventListener("mouseenter", () => {
+        if (running) return;
+        running = true;
+        link.style.minWidth = link.offsetWidth + "px";
+        let frame = 0;
+        const frames = original.length * 3;
+        (function tick() {
+          link.textContent = [...original]
+            .map((c, i) => (i < frame / 3 || c === " " ? c : glyphs[Math.floor(Math.random() * glyphs.length)]))
+            .join("");
+          if (frame++ < frames) {
+            window.setTimeout(tick, 28);
+          } else {
+            link.textContent = original;
+            link.style.minWidth = "";
+            running = false;
+          }
+        })();
+      });
+    });
+  }
+
+  // Card images turn into 1-bit Atkinson-dithered pictures on hover, like an old Mac screen
+  function initDitherCards() {
+    document.querySelectorAll(".card .thumb").forEach((thumb) => {
+      const img = thumb.querySelector("img");
+      if (!img) return;
+      let canvas = null;
+      thumb.addEventListener("mouseenter", () => {
+        if (canvas || !img.complete || !img.naturalWidth) return;
+        canvas = ditherImage(img, thumb.clientWidth, thumb.clientHeight);
+        thumb.appendChild(canvas);
+      });
+    });
+  }
+
+  function ditherImage(img, boxW, boxH) {
+    const pixel = 2; // each dither dot is 2x2 screen pixels
+    const w = Math.max(1, Math.round(boxW / pixel));
+    const h = Math.max(1, Math.round(boxH / pixel));
+    const canvas = document.createElement("canvas");
+    canvas.className = "dither";
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    // object-fit: cover
+    const scale = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+    const dw = img.naturalWidth * scale;
+    const dh = img.naturalHeight * scale;
+    ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+
+    const image = ctx.getImageData(0, 0, w, h);
+    const px = image.data;
+    const gray = new Float32Array(w * h);
+    for (let i = 0; i < w * h; i++) {
+      gray[i] = 0.2126 * px[i * 4] + 0.7152 * px[i * 4 + 1] + 0.0722 * px[i * 4 + 2];
+    }
+    const spread = (x, y, err) => {
+      if (x >= 0 && x < w && y < h) gray[y * w + x] += err;
+    };
+    const dark = [17, 17, 17];
+    const light = [246, 246, 244];
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x;
+        const on = gray[i] >= 128;
+        const err = (gray[i] - (on ? 255 : 0)) / 8;
+        spread(x + 1, y, err);
+        spread(x + 2, y, err);
+        spread(x - 1, y + 1, err);
+        spread(x, y + 1, err);
+        spread(x + 1, y + 1, err);
+        spread(x, y + 2, err);
+        const c = on ? light : dark;
+        px[i * 4] = c[0];
+        px[i * 4 + 1] = c[1];
+        px[i * 4 + 2] = c[2];
+        px[i * 4 + 3] = 255;
+      }
+    }
+    ctx.putImageData(image, 0, 0);
+    return canvas;
+  }
+
   if (!header) {
     startTitleMarquee();
     return;
