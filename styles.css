@@ -443,6 +443,11 @@ h3{
   aspect-ratio: auto;
 }
 
+/* Crop towards the lower part, for portrait photos whose subject sits low */
+.media .focus-low{
+  object-position: 50% 80%;
+}
+
 /* Whole image inside the 16:9 frame, edges filled black: for pictures on a black background */
 .media .contain{
   object-fit: contain;
@@ -483,6 +488,58 @@ video[data-lqip]{
   display:grid;
   grid-template-columns: repeat(12, 1fr);
   gap: var(--gap);
+}
+
+/* Pattern slideshow: each pattern fills the frame, zooms in slowly, and crossfades to the next */
+.media .tile-show{
+  grid-column: 1 / -1;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.tile-show .tile-layer{
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity .9s ease;
+}
+
+.tile-show .tile-layer.is-active{
+  opacity: 1;
+  animation: tile-zoom 4s ease-out both;
+}
+
+@keyframes tile-zoom{
+  from{ transform: scale(1); }
+  to{ transform: scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .tile-show .tile-layer.is-active{
+    animation: none;
+  }
+}
+
+.text-mode .tile-show{
+  display: none;
+}
+
+/* Link to the live site under the categories on each project page */
+.meta .project-link{
+  flex-basis: 100%;
+}
+
+.meta .project-link a{
+  color: var(--text);
+  text-decoration: none;
+}
+
+.meta .project-link a:hover{
+  color: var(--link-color);
 }
 
 .about-col{

@@ -30,6 +30,7 @@
   initLoadMeter();
   initScrambleNav();
   initDitherCards();
+  initTileShows();
 
   // Press T: the whole site as a 90s text-only browser would render it
   function initTextMode() {
@@ -125,6 +126,31 @@
           }
         })();
       });
+    });
+  }
+
+  // Pattern slideshows: data-tiles lists image paths without extension; AVIF with a JPEG fallback
+  function initTileShows() {
+    document.querySelectorAll(".tile-show[data-tiles]").forEach((show) => {
+      const layers = show.dataset.tiles.trim().split(/\s+/).map((path) => {
+        const layer = document.createElement("div");
+        layer.className = "tile-layer";
+        layer.style.backgroundImage =
+          `image-set(url("${path}.avif") type("image/avif"), url("${path}.jpg") type("image/jpeg"))`;
+        if (!layer.style.backgroundImage) layer.style.backgroundImage = `url("${path}.jpg")`;
+        show.appendChild(layer);
+        return layer;
+      });
+      if (!layers.length) return;
+      let current = 0;
+      layers[0].classList.add("is-active");
+      if (layers.length < 2) return;
+      window.setInterval(() => {
+        if (document.hidden) return;
+        layers[current].classList.remove("is-active");
+        current = (current + 1) % layers.length;
+        layers[current].classList.add("is-active");
+      }, 3000);
     });
   }
 
