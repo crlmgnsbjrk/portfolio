@@ -448,6 +448,11 @@ h3{
   object-position: 50% 80%;
 }
 
+/* A little below centre: keeps the Vanitas floor pattern in the card */
+.thumb .focus-lower{
+  object-position: 50% 62%;
+}
+
 /* Whole image inside the 16:9 frame, edges filled black: for pictures on a black background */
 .media .contain{
   object-fit: contain;
