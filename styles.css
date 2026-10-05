@@ -443,6 +443,12 @@ h3{
   aspect-ratio: auto;
 }
 
+/* Whole image inside the 16:9 frame, edges filled black: for pictures on a black background */
+.media .contain{
+  object-fit: contain;
+  background-color: #040100;
+}
+
 /* Half width in the image's own proportions; pair two images of the same shape */
 .media .half.natural{
   aspect-ratio: auto;
