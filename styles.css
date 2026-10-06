@@ -437,11 +437,6 @@ h3{
   grid-column: span 6;
 }
 
-/* Centred at two thirds of the width, for films whose own framing is already large */
-.media .inset{
-  grid-column: 3 / span 8;
-}
-
 /* Three across in the image's own proportions, for phone screens and portrait images */
 .media .third{
   grid-column: span 4;
@@ -577,10 +572,6 @@ video[data-lqip]{
   }
 
   .media .third{
-    grid-column: 1 / -1;
-  }
-
-  .media .inset{
     grid-column: 1 / -1;
   }
 
