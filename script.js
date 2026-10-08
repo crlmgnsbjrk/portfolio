@@ -156,20 +156,40 @@
     });
   }
 
-  // Pattern slideshows: data-tiles lists image paths without extension; AVIF with a JPEG fallback
+  // Slideshows (.tile-show): data-tiles lists images, either "path/name" (name.avif + name.jpg) or a
+  // full fallback file "path/name.jpg|png" (name.avif tried first). Each image loads just before it is
+  // shown; data-shuffle mixes the order on every visit.
   function initTileShows() {
     document.querySelectorAll(".tile-show[data-tiles]").forEach((show) => {
-      const layers = show.dataset.tiles.trim().split(/\s+/).map((path) => {
+      let paths = show.dataset.tiles.trim().split(/\s+/);
+      if (show.hasAttribute("data-shuffle")) {
+        for (let i = paths.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [paths[i], paths[j]] = [paths[j], paths[i]];
+        }
+      }
+      const layers = paths.map((path) => {
         const layer = document.createElement("div");
         layer.className = "tile-layer";
-        layer.style.backgroundImage =
-          `image-set(url("${path}.avif") type("image/avif"), url("${path}.jpg") type("image/jpeg"))`;
-        if (!layer.style.backgroundImage) layer.style.backgroundImage = `url("${path}.jpg")`;
+        const ext = path.match(/\.(jpe?g|png)$/i);
+        const base = ext ? path.slice(0, -ext[0].length) : path;
+        const fallback = ext ? path : path + ".jpg";
+        layer.dataset.bg =
+          `image-set(url("${base}.avif") type("image/avif"), url("${fallback}") type("image/${ext && ext[1].toLowerCase() === "png" ? "png" : "jpeg"}"))`;
+        layer.dataset.fallback = `url("${fallback}")`;
         show.appendChild(layer);
         return layer;
       });
       if (!layers.length) return;
+      const load = (i) => {
+        const layer = layers[i % layers.length];
+        if (layer.style.backgroundImage) return;
+        layer.style.backgroundImage = layer.dataset.bg;
+        if (!layer.style.backgroundImage) layer.style.backgroundImage = layer.dataset.fallback;
+      };
       let current = 0;
+      load(0);
+      load(1);
       layers[0].classList.add("is-active");
       if (layers.length < 2) return;
       window.setInterval(() => {
@@ -177,6 +197,7 @@
         layers[current].classList.remove("is-active");
         current = (current + 1) % layers.length;
         layers[current].classList.add("is-active");
+        load(current + 1);
       }, 3000);
     });
   }

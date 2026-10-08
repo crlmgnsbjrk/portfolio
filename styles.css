@@ -1,3 +1,44 @@
+/* Almost Swiss, drawn by Carl Magnus Björk: the site typeface. Files come from originals/fonts via build-media.sh */
+@font-face{
+  font-family: "Almost Swiss";
+  src: url("fonts/almost-swiss-light.woff2?v=a3f356cf") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Almost Swiss";
+  src: url("fonts/almost-swiss-regular.woff2?v=3aa7a997") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Almost Swiss";
+  src: url("fonts/almost-swiss-medium.woff2?v=82c2c438") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Almost Swiss";
+  src: url("fonts/almost-swiss-semibold.woff2?v=55961e0d") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Almost Swiss";
+  src: url("fonts/almost-swiss-bold.woff2?v=64ff6785") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 
 :root{
   --bg:#f6f6f4;
@@ -8,6 +49,7 @@
   --radius:0px;
   --max:none;
   --gap:12px;
+  --hero-after: clamp(80px, 10vw, 160px);  /* space under the big intro text */
   --link-color:#3604FE;
 }
 
@@ -15,7 +57,7 @@
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family: 'Archivo', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Almost Swiss', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg);
   color: var(--text);
   line-height:1.5;
@@ -128,14 +170,17 @@ h3{
 
 .hero{
   font-size: clamp(28px, 5vw, 64px);
+  font-weight: 300;
   line-height:1.05;
-  margin: 0 0 48px;
-  letter-spacing:-.01em;
+  /* air above and below that grows with the screen; padding on top so it adds to the header's margin */
+  padding-top: clamp(16px, 4vw, 64px);
+  margin: 0 0 var(--hero-after);
+  letter-spacing:0;
   max-width: 30ch;
   grid-column: 1 / -1;
 }
 
-/* ASCII art needs fixed-width characters, the one place that is not Archivo */
+/* ASCII art needs fixed-width characters, the one place that is not Almost Swiss */
 .ascii-404{
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: clamp(11px, 2.2vw, 22px);
@@ -340,7 +385,7 @@ h3{
 .title{
   margin:10px 0 0;
   font-size:14px;
-  letter-spacing:-.01em;
+  letter-spacing:0;
   color: var(--text);
   text-align:left;
 }
@@ -357,8 +402,8 @@ h3{
   font-size:18px;
   line-height:1.2;
   margin: 0 0 21px;
-  letter-spacing:-.01em;
-  font-family: 'Archivo', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing:0;
+  font-family: 'Almost Swiss', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight:400;
 }
 
@@ -385,8 +430,17 @@ h3{
   max-width: 70ch;
 }
 
+/* Slideshow of project images under the contact details */
+.contact-media{
+  margin-top: var(--hero-after);
+}
+
+.hero:has(+ .contact-meta){
+  margin-bottom: 20px;
+}
+
 .contact-meta{
-  margin: -28px 0 0;
+  margin: 0;
   font-size:13px;
   color: var(--muted);
 }
@@ -493,7 +547,7 @@ video[data-lqip]{
   display:grid;
   grid-template-columns: repeat(12, 1fr);
   gap: var(--gap);
-  padding-top: 72px;  /* on top of the intro's 48px margin: 120px in all (padding, so it doesn't collapse) */
+  padding-top: 24px;  /* a little more than the intro's own space below (padding, so it doesn't collapse) */
 }
 
 /* Pattern slideshow: each pattern fills the frame, zooms in slowly, and crossfades to the next */
@@ -522,6 +576,23 @@ video[data-lqip]{
 @keyframes tile-zoom{
   from{ transform: scale(1); }
   to{ transform: scale(1.06); }
+}
+
+/* data-fx="projector": a hard cut, the next slide is pushed in and lit up like a slide projector */
+.tile-show[data-fx="projector"] .tile-layer{
+  transition: none;
+}
+
+.tile-show[data-fx="projector"] .tile-layer.is-active{
+  animation: projector-in 3.4s linear both;
+}
+
+/* First ~0.4 s: pushed up from below with a flash. Then a slow zoom while the slide is shown. */
+@keyframes projector-in{
+  0%{ transform: translateY(4%) scale(1); filter: brightness(3) contrast(.75); animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
+  7%{ transform: translateY(-.5%) scale(1.004); filter: brightness(1.2); animation-timing-function: ease-out; }
+  12%{ transform: translateY(0) scale(1.007); filter: none; animation-timing-function: linear; }
+  100%{ transform: translateY(0) scale(1.06); filter: none; }
 }
 
 @media (prefers-reduced-motion: reduce){
