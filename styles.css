@@ -533,6 +533,38 @@ video[data-lqip]{
   display: none;
 }
 
+/* Film that plays muted on its own, with a small button to turn the sound on */
+.media .sound-wrap{
+  grid-column: 1 / -1;
+  position: relative;
+}
+
+.sound-toggle{
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  padding: 4px 9px;
+  border: 0;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.2;
+  color: var(--text);
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.sound-toggle:hover{
+  color: var(--link-color);
+}
+
+.sound-toggle.is-muted{
+  text-decoration: line-through;
+}
+
+.text-mode .sound-toggle{
+  display: none;
+}
+
 /* Link to the live site under the categories on each project page */
 .meta .project-link{
   flex-basis: 100%;

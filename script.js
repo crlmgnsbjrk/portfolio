@@ -31,6 +31,7 @@
   initScrambleNav();
   initDitherCards();
   initTileShows();
+  initSoundToggles();
 
   // Press T: the whole site as a 90s text-only browser would render it
   function initTextMode() {
@@ -126,6 +127,32 @@
           }
         })();
       });
+    });
+  }
+
+  // Muted autoplay films (video[data-sound]) get a button that turns the sound on and starts over
+  function initSoundToggles() {
+    document.querySelectorAll("video[data-sound]").forEach((video) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "sound-toggle";
+      button.textContent = "♪";
+      // Only the note is shown; struck through while muted. The label carries the words.
+      const label = () => {
+        button.classList.toggle("is-muted", video.muted);
+        button.setAttribute("aria-label", video.muted ? "Sound on" : "Sound off");
+        button.title = video.muted ? "Sound on" : "Sound off";
+      };
+      label();
+      button.addEventListener("click", () => {
+        video.muted = !video.muted;
+        if (!video.muted) {
+          video.currentTime = 0;
+          video.play();
+        }
+        label();
+      });
+      video.after(button);
     });
   }
 
@@ -370,7 +397,7 @@
     const current = Number(match[1]);
     const prev = current - 1;
     const next = current + 1;
-    const maxProject = 6;
+    const maxProject = 4;
     const prevLink = nav.querySelector("[data-prev]");
     const nextLink = nav.querySelector("[data-next]");
 
