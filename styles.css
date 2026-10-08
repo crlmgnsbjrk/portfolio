@@ -584,6 +584,17 @@ video[data-lqip]{
   grid-column: span 3;
 }
 
+/* Work, Clients and Awards: each as wide as its text, with the same fixed space between them */
+.about-cols{
+  grid-column: 1 / -1;
+  display: flex;
+  column-gap: 96px;
+}
+
+.about-cols .about-col{
+  flex: none;
+}
+
 .about-col h3{
   margin: 0 0 12px;
 }
@@ -610,6 +621,12 @@ video[data-lqip]{
 
   .about-col{
     grid-column: 1 / -1;
+  }
+
+  .about-cols{
+    grid-column: 1 / -1;
+    flex-direction: column;
+    row-gap: 32px;
   }
 
   .about-grid{
