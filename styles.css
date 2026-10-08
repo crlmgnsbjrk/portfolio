@@ -493,6 +493,7 @@ video[data-lqip]{
   display:grid;
   grid-template-columns: repeat(12, 1fr);
   gap: var(--gap);
+  padding-top: 72px;  /* on top of the intro's 48px margin: 120px in all (padding, so it doesn't collapse) */
 }
 
 /* Pattern slideshow: each pattern fills the frame, zooms in slowly, and crossfades to the next */
@@ -613,6 +614,7 @@ video[data-lqip]{
 
   .about-grid{
     row-gap: 32px;
+    padding-top: 32px;
   }
 }
 
