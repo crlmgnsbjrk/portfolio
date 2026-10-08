@@ -578,25 +578,48 @@ video[data-lqip]{
   to{ transform: scale(1.06); }
 }
 
-/* data-fx="projector": a hard cut, the next slide is pushed in and lit up like a slide projector */
+/* data-fx="projector": a hard cut, the next slide is pushed up and lit up like a slide projector.
+   The flash is a white layer fading out (cheap everywhere, unlike filter: brightness on iPhone Safari). */
 .tile-show[data-fx="projector"] .tile-layer{
   transition: none;
+  will-change: transform;
 }
 
 .tile-show[data-fx="projector"] .tile-layer.is-active{
   animation: projector-in 3.4s linear both;
 }
 
-/* First ~0.4 s: pushed up from below with a flash. Then a slow zoom while the slide is shown. */
+/* First ~0.4 s: pushed up from below. Then a slow zoom while the slide is shown. */
 @keyframes projector-in{
-  0%{ transform: translateY(4%) scale(1); filter: brightness(3) contrast(.75); animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
-  7%{ transform: translateY(-.5%) scale(1.004); filter: brightness(1.2); animation-timing-function: ease-out; }
-  12%{ transform: translateY(0) scale(1.007); filter: none; animation-timing-function: linear; }
-  100%{ transform: translateY(0) scale(1.06); filter: none; }
+  0%{ transform: translate3d(0, 4%, 0) scale(1); animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
+  7%{ transform: translate3d(0, -.5%, 0) scale(1.004); animation-timing-function: ease-out; }
+  12%{ transform: translate3d(0, 0, 0) scale(1.007); animation-timing-function: linear; }
+  100%{ transform: translate3d(0, 0, 0) scale(1.06); }
+}
+
+.tile-show[data-fx="projector"]::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tile-show[data-fx="projector"].is-flashing::after{
+  animation: projector-flash .45s ease-out both;
+}
+
+@keyframes projector-flash{
+  0%{ opacity: .85; }
+  35%{ opacity: .25; }
+  100%{ opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce){
-  .tile-show .tile-layer.is-active{
+  .tile-show .tile-layer.is-active,
+  .tile-show.is-flashing::after{
     animation: none;
   }
 }

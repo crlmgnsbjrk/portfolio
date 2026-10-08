@@ -198,6 +198,12 @@
         current = (current + 1) % layers.length;
         layers[current].classList.add("is-active");
         load(current + 1);
+        if (show.dataset.fx === "projector") {
+          // restart the flash: drop the class, force a reflow, add it again
+          show.classList.remove("is-flashing");
+          void show.offsetWidth;
+          show.classList.add("is-flashing");
+        }
       }, 3000);
     });
   }
