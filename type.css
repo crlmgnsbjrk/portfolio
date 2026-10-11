@@ -1,7 +1,7 @@
 /* Typefaces shown on the Type pages besides Almost Swiss (which styles.css loads for the whole site) */
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-light.woff2?v=cd3d7362") format("woff2");
+  src: url("fonts/spacjinx-light.woff2?v=82835416") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -9,7 +9,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-regular.woff2?v=ff74a170") format("woff2");
+  src: url("fonts/spacjinx-regular.woff2?v=33247a2b") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -17,7 +17,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-medium.woff2?v=32659817") format("woff2");
+  src: url("fonts/spacjinx-medium.woff2?v=4c568759") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -25,7 +25,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-semibold.woff2?v=c1b2ca52") format("woff2");
+  src: url("fonts/spacjinx-semibold.woff2?v=b275793b") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -33,7 +33,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-bold.woff2?v=f8504d9a") format("woff2");
+  src: url("fonts/spacjinx-bold.woff2?v=d9fe9acf") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -41,7 +41,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-extrabold.woff2?v=7adab317") format("woff2");
+  src: url("fonts/spacjinx-extrabold.woff2?v=c5e92f4c") format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -49,7 +49,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-black.woff2?v=0a06cf01") format("woff2");
+  src: url("fonts/spacjinx-black.woff2?v=9a98385e") format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -127,6 +127,54 @@
   font-display: swap;
 }
 
+@font-face{
+  font-family: "Plainspoken";
+  src: url("fonts/plainspoken-extralight.woff2?v=a073a921") format("woff2");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Plainspoken";
+  src: url("fonts/plainspoken-light.woff2?v=68dae59a") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Plainspoken";
+  src: url("fonts/plainspoken-regular.woff2?v=96c44d02") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Plainspoken";
+  src: url("fonts/plainspoken-medium.woff2?v=ade101b5") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Plainspoken";
+  src: url("fonts/plainspoken-semibold.woff2?v=43c4e080") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Plainspoken";
+  src: url("fonts/plainspoken-bold.woff2?v=a5a7be3f") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Type page: a type foundry inside the studio site. Dark, so it reads as its own place. */
 body.type-page{
   --bg: #121211;
@@ -136,6 +184,11 @@ body.type-page{
   --card: rgba(242, 241, 236, .05);
   background: var(--bg);
   color: var(--text);
+  letter-spacing: 0;
+}
+
+.type-page *{
+  letter-spacing: 0;
 }
 
 .type-page ::selection{
