@@ -1,7 +1,7 @@
 /* Typefaces shown on the Type pages besides Almost Swiss (which styles.css loads for the whole site) */
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-light.woff2?v=e90e2d77") format("woff2");
+  src: url("fonts/spacjinx-light.woff2?v=cd3d7362") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -9,7 +9,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-regular.woff2?v=82cb6201") format("woff2");
+  src: url("fonts/spacjinx-regular.woff2?v=ff74a170") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -17,7 +17,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-medium.woff2?v=a710db9a") format("woff2");
+  src: url("fonts/spacjinx-medium.woff2?v=32659817") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -25,7 +25,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-semibold.woff2?v=5cce16af") format("woff2");
+  src: url("fonts/spacjinx-semibold.woff2?v=c1b2ca52") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -33,7 +33,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-bold.woff2?v=1c73047a") format("woff2");
+  src: url("fonts/spacjinx-bold.woff2?v=f8504d9a") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -41,7 +41,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-extrabold.woff2?v=4915b659") format("woff2");
+  src: url("fonts/spacjinx-extrabold.woff2?v=7adab317") format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -49,7 +49,7 @@
 
 @font-face{
   font-family: "Spacjinx";
-  src: url("fonts/spacjinx-black.woff2?v=1a208952") format("woff2");
+  src: url("fonts/spacjinx-black.woff2?v=0a06cf01") format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -89,7 +89,7 @@
 
 @font-face{
   font-family: "Askew";
-  src: url("fonts/askew-extralight.woff2?v=cf226321") format("woff2");
+  src: url("fonts/askew-extralight.woff2?v=1c388ef2") format("woff2");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
@@ -97,7 +97,7 @@
 
 @font-face{
   font-family: "Askew";
-  src: url("fonts/askew-light.woff2?v=beee7e99") format("woff2");
+  src: url("fonts/askew-light.woff2?v=c6b68732") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -105,7 +105,7 @@
 
 @font-face{
   font-family: "Askew";
-  src: url("fonts/askew-regular.woff2?v=f8934383") format("woff2");
+  src: url("fonts/askew-regular.woff2?v=f9179609") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -113,7 +113,7 @@
 
 @font-face{
   font-family: "Askew";
-  src: url("fonts/askew-medium.woff2?v=bd10ead9") format("woff2");
+  src: url("fonts/askew-medium.woff2?v=d993451b") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -121,7 +121,7 @@
 
 @font-face{
   font-family: "Askew";
-  src: url("fonts/askew-semibold.woff2?v=5bb9c85e") format("woff2");
+  src: url("fonts/askew-semibold.woff2?v=8d850944") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
