@@ -1,7 +1,39 @@
 /* Almost Swiss, drawn by Carl Magnus Björk: the site typeface. Files come from originals/fonts via build-media.sh */
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-light.woff2?v=b064d9ca") format("woff2");
+  src: url("fonts/almost-swiss-thin.woff2?v=6eccad53") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Almost Swiss";
+  src: url("fonts/almost-swiss-extralight.woff2?v=a9a5835b") format("woff2");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Almost Swiss";
+  src: url("fonts/almost-swiss-extrabold.woff2?v=94d56120") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Almost Swiss";
+  src: url("fonts/almost-swiss-black.woff2?v=7874814a") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Almost Swiss";
+  src: url("fonts/almost-swiss-light.woff2?v=2741b19d") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -9,7 +41,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-regular.woff2?v=22c34002") format("woff2");
+  src: url("fonts/almost-swiss-regular.woff2?v=7bf99886") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -17,7 +49,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-medium.woff2?v=97611549") format("woff2");
+  src: url("fonts/almost-swiss-medium.woff2?v=4e74143e") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -25,7 +57,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-semibold.woff2?v=95527962") format("woff2");
+  src: url("fonts/almost-swiss-semibold.woff2?v=32726b4b") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -33,7 +65,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-bold.woff2?v=d1e87052") format("woff2");
+  src: url("fonts/almost-swiss-bold.woff2?v=6408fc73") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -586,15 +618,15 @@ video[data-lqip]{
 }
 
 .tile-show[data-fx="projector"] .tile-layer.is-active{
-  animation: projector-in 3.4s linear both;
+  animation: projector-in 2.4s linear both;
 }
 
 /* First ~0.4 s: pushed up from below. Then a slow zoom while the slide is shown. */
 @keyframes projector-in{
   0%{ transform: translate3d(0, 4%, 0) scale(1); animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
-  7%{ transform: translate3d(0, -.5%, 0) scale(1.004); animation-timing-function: ease-out; }
-  12%{ transform: translate3d(0, 0, 0) scale(1.007); animation-timing-function: linear; }
-  100%{ transform: translate3d(0, 0, 0) scale(1.06); }
+  10%{ transform: translate3d(0, -.5%, 0) scale(1.004); animation-timing-function: ease-out; }
+  17%{ transform: translate3d(0, 0, 0) scale(1.007); animation-timing-function: linear; }
+  100%{ transform: translate3d(0, 0, 0) scale(1.05); }
 }
 
 .tile-show[data-fx="projector"]::after{

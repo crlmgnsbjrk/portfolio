@@ -158,7 +158,7 @@
 
   // Slideshows (.tile-show): data-tiles lists images, either "path/name" (name.avif + name.jpg) or a
   // full fallback file "path/name.jpg|png" (name.avif tried first). Each image loads just before it is
-  // shown; data-shuffle mixes the order on every visit.
+  // shown; data-shuffle mixes the order on every visit; data-interval sets ms per image (3000).
   function initTileShows() {
     document.querySelectorAll(".tile-show[data-tiles]").forEach((show) => {
       let paths = show.dataset.tiles.trim().split(/\s+/);
@@ -204,7 +204,7 @@
           void show.offsetWidth;
           show.classList.add("is-flashing");
         }
-      }, 3000);
+      }, Number(show.dataset.interval) || 3000);
     });
   }
 
