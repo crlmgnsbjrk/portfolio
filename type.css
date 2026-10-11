@@ -56,38 +56,6 @@
 }
 
 @font-face{
-  font-family: "Seamless";
-  src: url("fonts/seamless-regular.woff2?v=2c14e676") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face{
-  font-family: "Seamless";
-  src: url("fonts/seamless-medium.woff2?v=1dc580dd") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face{
-  font-family: "Seamless";
-  src: url("fonts/seamless-semibold.woff2?v=2349d5e6") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face{
-  font-family: "Seamless";
-  src: url("fonts/seamless-bold.woff2?v=d7cdb4a1") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face{
   font-family: "Askew";
   src: url("fonts/askew-extralight.woff2?v=1c388ef2") format("woff2");
   font-weight: 200;
@@ -170,6 +138,46 @@
 @font-face{
   font-family: "Plainspoken";
   src: url("fonts/plainspoken-bold.woff2?v=a5a7be3f") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Seamless";
+  src: url("fonts/seamless-light.woff2?v=1b0b3ac6") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Seamless";
+  src: url("fonts/seamless-regular.woff2?v=a8dcf58a") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Seamless";
+  src: url("fonts/seamless-medium.woff2?v=3cf02633") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Seamless";
+  src: url("fonts/seamless-semibold.woff2?v=683b0428") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Seamless";
+  src: url("fonts/seamless-bold.woff2?v=2990fc55") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
