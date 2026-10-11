@@ -1,7 +1,7 @@
 /* Almost Swiss, drawn by Carl Magnus Björk: the site typeface. Files come from originals/fonts via build-media.sh */
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-thin.woff2?v=6eccad53") format("woff2");
+  src: url("fonts/almost-swiss-thin.woff2?v=d6e352f9") format("woff2");
   font-weight: 100;
   font-style: normal;
   font-display: swap;
@@ -9,7 +9,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-extralight.woff2?v=a9a5835b") format("woff2");
+  src: url("fonts/almost-swiss-extralight.woff2?v=31f129dc") format("woff2");
   font-weight: 200;
   font-style: normal;
   font-display: swap;
@@ -17,7 +17,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-extrabold.woff2?v=94d56120") format("woff2");
+  src: url("fonts/almost-swiss-extrabold.woff2?v=4301a2f9") format("woff2");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -25,7 +25,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-black.woff2?v=7874814a") format("woff2");
+  src: url("fonts/almost-swiss-black.woff2?v=bb0951ce") format("woff2");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
@@ -33,7 +33,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-light.woff2?v=2741b19d") format("woff2");
+  src: url("fonts/almost-swiss-light.woff2?v=c9c95108") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -41,7 +41,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-regular.woff2?v=7bf99886") format("woff2");
+  src: url("fonts/almost-swiss-regular.woff2?v=ccb7e9c7") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -49,7 +49,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-medium.woff2?v=4e74143e") format("woff2");
+  src: url("fonts/almost-swiss-medium.woff2?v=d4176e8d") format("woff2");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -57,7 +57,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-semibold.woff2?v=32726b4b") format("woff2");
+  src: url("fonts/almost-swiss-semibold.woff2?v=9816146e") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -65,7 +65,7 @@
 
 @font-face{
   font-family: "Almost Swiss";
-  src: url("fonts/almost-swiss-bold.woff2?v=6408fc73") format("woff2");
+  src: url("fonts/almost-swiss-bold.woff2?v=77eeed45") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
