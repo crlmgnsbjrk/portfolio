@@ -1,3 +1,116 @@
+/* Typefaces shown on the Type pages besides Almost Swiss (which styles.css loads for the whole site) */
+@font-face{
+  font-family: "Spacjinx";
+  src: url("fonts/spacjinx-light.woff2?v=e90e2d77") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Spacjinx";
+  src: url("fonts/spacjinx-regular.woff2?v=82cb6201") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Spacjinx";
+  src: url("fonts/spacjinx-medium.woff2?v=a710db9a") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Spacjinx";
+  src: url("fonts/spacjinx-semibold.woff2?v=5cce16af") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Spacjinx";
+  src: url("fonts/spacjinx-bold.woff2?v=1c73047a") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Spacjinx";
+  src: url("fonts/spacjinx-extrabold.woff2?v=4915b659") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Spacjinx";
+  src: url("fonts/spacjinx-black.woff2?v=1a208952") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Seamless";
+  src: url("fonts/seamless-regular.woff2?v=2c14e676") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Seamless";
+  src: url("fonts/seamless-medium.woff2?v=1dc580dd") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Seamless";
+  src: url("fonts/seamless-semibold.woff2?v=2349d5e6") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Seamless";
+  src: url("fonts/seamless-bold.woff2?v=d7cdb4a1") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Askew";
+  src: url("fonts/askew-light.woff2?v=510923fe") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Askew";
+  src: url("fonts/askew-regular.woff2?v=8ee11fb8") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Askew";
+  src: url("fonts/askew-medium.woff2?v=1c31aa7a") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Type page: a type foundry inside the studio site. Dark, so it reads as its own place. */
 body.type-page{
   --bg: #121211;
@@ -326,4 +439,94 @@ body.type-page{
 
 .download-meta a{
   color: inherit;
+}
+
+/* Specimens are set in the typeface on show (--face on <main>); controls and labels stay in Almost Swiss */
+.type-statement,
+.type-about p,
+.tester-text,
+.style-sample,
+.glyph-big,
+.glyph-grid button,
+.type-sizes p,
+.text-columns,
+.type-license p:not(.download-meta){
+  font-family: var(--face, "Almost Swiss"), "Almost Swiss", system-ui, sans-serif;
+}
+
+.type-statement{
+  max-width: 20ch;
+  margin: 0 0 24px !important;
+  font-size: clamp(32px, 5vw, 72px) !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+/* Typeface navigation: every name edge to edge in its own font */
+.face-nav{
+  display: block;
+  margin: 0 0 48px;
+  padding-top: clamp(16px, 4vw, 64px);
+}
+
+.face-link{
+  display: block;
+  position: relative;
+  padding: 12px 0 16px;
+  border-top: 1px solid var(--line);
+  color: var(--text);
+  text-decoration: none;
+  font-family: var(--face);
+}
+
+.face-link:last-child{
+  border-bottom: 1px solid var(--line);
+}
+
+.face-name{
+  display: block;
+  width: max-content;
+  line-height: .95;
+  white-space: nowrap;
+}
+
+.face-num,
+.face-meta{
+  font-family: "Almost Swiss", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.face-num{
+  position: absolute;
+  top: 12px;
+  left: 0;
+}
+
+.face-meta{
+  display: block;
+  margin-top: clamp(24px, 3vw, 48px);  /* clear of the descenders */
+  color: var(--muted);
+}
+
+/* On a typeface page the others step back */
+.type:not(.type-index) .face-link:not(.is-current){
+  opacity: .28;
+  transition: opacity .2s ease;
+}
+
+.type .face-link:not(.is-current):hover{
+  opacity: 1;
+}
+
+.face-num + .face-name{
+  padding-top: 22px;
+}
+
+.type-index .face-nav{
+  margin-bottom: 96px;
+}
+
+.face-pager{
+  margin: 0 0 96px;
 }
