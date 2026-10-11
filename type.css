@@ -598,6 +598,13 @@ body.type-page{
 
 .face-pager{
   margin: 0 0 96px;
+  gap: 24px;
+  font-size: clamp(28px, 4vw, 64px);
+  line-height: 1.1;
+}
+
+.type-page .face-pager a:hover{
+  color: var(--muted);
 }
 
 /* Phone, typeface page: the other typefaces become a compact list, so the chosen one and its
@@ -631,4 +638,9 @@ body.type-page{
   .type:not(.type-index) .face-link.is-current{
     padding-top: 16px;
   }
+}
+
+/* "Coming soon": the link colour, but not a link */
+.soon{
+  color: var(--link-color);
 }
