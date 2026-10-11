@@ -89,7 +89,15 @@
 
 @font-face{
   font-family: "Askew";
-  src: url("fonts/askew-light.woff2?v=510923fe") format("woff2");
+  src: url("fonts/askew-extralight.woff2?v=cf226321") format("woff2");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Askew";
+  src: url("fonts/askew-light.woff2?v=beee7e99") format("woff2");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -97,7 +105,7 @@
 
 @font-face{
   font-family: "Askew";
-  src: url("fonts/askew-regular.woff2?v=8ee11fb8") format("woff2");
+  src: url("fonts/askew-regular.woff2?v=f8934383") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -105,8 +113,16 @@
 
 @font-face{
   font-family: "Askew";
-  src: url("fonts/askew-medium.woff2?v=1c31aa7a") format("woff2");
+  src: url("fonts/askew-medium.woff2?v=bd10ead9") format("woff2");
   font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face{
+  font-family: "Askew";
+  src: url("fonts/askew-semibold.woff2?v=5bb9c85e") format("woff2");
+  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
@@ -529,4 +545,37 @@ body.type-page{
 
 .face-pager{
   margin: 0 0 96px;
+}
+
+/* Phone, typeface page: the other typefaces become a compact list, so the chosen one and its
+   details come straight into view */
+@media (max-width: 800px){
+  .type:not(.type-index) .face-nav{
+    margin-bottom: 32px;
+  }
+
+  .type:not(.type-index) .face-link:not(.is-current){
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 10px 0 8px;
+  }
+
+  .type:not(.type-index) .face-link:not(.is-current) .face-num{
+    position: static;
+  }
+
+  .type:not(.type-index) .face-link:not(.is-current) .face-name{
+    padding-top: 0;
+    font-size: 28px;
+    line-height: 1.1;
+  }
+
+  .type:not(.type-index) .face-link:not(.is-current) .face-meta{
+    display: none;
+  }
+
+  .type:not(.type-index) .face-link.is-current{
+    padding-top: 16px;
+  }
 }

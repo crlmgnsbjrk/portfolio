@@ -7,8 +7,17 @@
 
   // Fit each name to the full width of its row, measured at the weight it is drawn in.
   // While hovered the row shows another line instead, never bigger than the name itself.
+  // On a phone, a typeface page shows the other names as a compact list in their own size (CSS).
   const names = [...document.querySelectorAll("[data-fit]")];
+  const onFacePage = !!document.querySelector(".type[data-styles]");
+  const phone = window.matchMedia("(max-width: 800px)");
+  const canHover = window.matchMedia("(hover: hover)").matches;
+  const compact = (el) => onFacePage && phone.matches && !el.hasAttribute("data-cycle");
   const fit = (el) => {
+    if (compact(el)) {
+      el.style.fontSize = "";
+      return;
+    }
     el.style.fontSize = "100px";
     const width = el.scrollWidth;
     const room = el.parentElement.clientWidth;
@@ -18,11 +27,24 @@
     else el.dataset.size = size;
     el.style.fontSize = size + "px";
   };
-  const fitAll = () => names.forEach(fit);
+  // A name that cycles gets the height of its tallest weight, so the page never moves under it
+  const lockHeight = (el) => {
+    const now = el.style.fontWeight;
+    let max = 0;
+    el.style.height = "";
+    el.dataset.weights.split(" ").forEach((w) => {
+      el.style.fontWeight = w;
+      fit(el);
+      max = Math.max(max, parseFloat(el.style.fontSize) || 0);
+    });
+    el.style.fontWeight = now;
+    fit(el);
+    if (max) el.style.height = max * 1.12 + "px";  // line-height .95 plus room for the descenders
+  };
+  const fitAll = () => names.forEach((el) => (el.hasAttribute("data-cycle") ? lockHeight(el) : fit(el)));
   document.fonts.ready.then(fitAll);
   document.fonts.addEventListener("loadingdone", fitAll);  // a weight arrived: measure again
   window.addEventListener("resize", fitAll);
-  fitAll();
 
   // Each name steps through its weights like a flipbook, refitted on every step:
   // the current typeface all the time, the others while hovered (faster)
@@ -46,13 +68,18 @@
       window.clearInterval(timer);
       timer = reducedMotion ? null : window.setInterval(step, ms);
     };
-    if (always) run(180);
-
     const family = getComputedStyle(link).fontFamily;
     const preload = () => weights.forEach((w) => document.fonts.load(`${w} 100px ${family}`));
-    if (always) preload();
+    if (always) {
+      preload();
+      run(180);
+    }
+    // Touch screens skip the hover: on iOS, changing the text on touch would swallow the tap
+    if (!canHover) return;
+
     link.addEventListener("mouseenter", () => {
       preload();
+      if (compact(el)) return;
       if (lines.length) {
         let n = Math.floor(Math.random() * lines.length);
         if (n === last && lines.length > 1) n = (n + 1) % lines.length;
@@ -65,17 +92,20 @@
       run(90);
     });
     link.addEventListener("mouseleave", () => {
+      if (!el.dataset.hovering && !timer) return;
       delete el.dataset.hovering;
       el.textContent = name;
       link.style.height = "";
       if (always) run(180);
       else {
         window.clearInterval(timer);
+        timer = null;
         el.style.fontWeight = rest;
       }
       fit(el);
     });
   });
+  fitAll();
 
   const main = document.querySelector(".type[data-styles]");
   if (!main) return;
