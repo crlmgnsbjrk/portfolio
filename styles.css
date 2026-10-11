@@ -467,6 +467,10 @@ h3{
   margin-top: var(--hero-after);
 }
 
+.about-media{
+  margin-top: var(--hero-after);
+}
+
 .hero:has(+ .contact-meta){
   margin-bottom: 20px;
 }
