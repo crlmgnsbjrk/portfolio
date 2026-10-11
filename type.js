@@ -57,11 +57,17 @@
     const lines = (el.dataset.hover || "").split("|").filter(Boolean);
     const link = el.parentElement;
     link.setAttribute("aria-label", name);
+    // Tracking of its own (Askew: tight) while the name stands still at its resting weight
+    const still = () => {
+      el.style.letterSpacing = !el.dataset.hovering && +el.style.fontWeight === rest ? el.dataset.tracking || "" : "";
+    };
     el.style.fontWeight = rest;
+    still();
     let i = 0, timer = null, last = -1;
     const step = () => {
       if (document.hidden) return;
       el.style.fontWeight = order[i++ % order.length];
+      still();
       fit(el);
     };
     const run = (ms) => {
@@ -87,6 +93,7 @@
         link.style.height = link.offsetHeight + "px";  // the row keeps its height
         el.dataset.hovering = "1";
         el.textContent = lines[n];
+        still();
         fit(el);
       }
       run(90);
@@ -102,6 +109,7 @@
         timer = null;
         el.style.fontWeight = rest;
       }
+      still();
       fit(el);
     });
   });
