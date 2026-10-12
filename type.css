@@ -742,3 +742,19 @@ h1.face-name{
   flex: none;
 }
 
+
+/* Phones: Safari hides the bottom edge when its toolbar folds away, so the button sits up top,
+   just under the menu, instead */
+@media (max-width: 800px) and (hover: none){
+  .sticky-download{
+    top: 48px;
+    bottom: auto;
+    padding: 8px 12px 9px;
+    font-size: 15px;
+    gap: 8px;
+  }
+
+  .sticky-download.is-hidden{
+    transform: translateY(-8px);
+  }
+}
