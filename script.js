@@ -5,8 +5,6 @@
 
   const header = document.querySelector(".site-header");
   const year = document.getElementById("y");
-  const originalTitle = document.title;
-  let titleIndex = 0;
 
   if (year) {
     year.textContent = String(new Date().getFullYear());
@@ -271,7 +269,6 @@
   }
 
   if (!header) {
-    startTitleMarquee();
     return;
   }
 
@@ -407,54 +404,31 @@
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
   updateHeaderColor();
-  startTitleMarquee();
-
-  initProjectNav();
+  initPlayButtons();
   initStockholmTime();
 
-  function initProjectNav() {
-    const nav = document.querySelector("[data-project-nav]");
-    if (!nav) {
-      return;
-    }
-    const match = window.location.pathname.match(/p-(\d+)\.html$/);
-    if (!match) {
-      return;
-    }
-    const current = Number(match[1]);
-    const prev = current - 1;
-    const next = current + 1;
-    const maxProject = 4;
-    const prevLink = nav.querySelector("[data-prev]");
-    const nextLink = nav.querySelector("[data-next]");
-
-    if (prevLink) {
-      if (prev < 1) {
-        prevLink.href = `p-${maxProject}.html`;
-      } else {
-        prevLink.href = `p-${prev}.html`;
-      }
-    }
-
-    if (nextLink) {
-      if (next > maxProject) {
-        nextLink.href = "p-1.html";
-      } else {
-        nextLink.href = `p-${next}.html`;
-      }
-    }
-  }
-
-  function startTitleMarquee() {
-    if (!originalTitle) {
-      return;
-    }
-    const padding = " · ";
-    const text = originalTitle + padding;
-    window.setInterval(() => {
-      titleIndex = (titleIndex + 1) % text.length;
-      document.title = text.slice(titleIndex) + text.slice(0, titleIndex);
-    }, 200);
+  // Films with sound (native controls): the poster stays visible with a clear play button on top
+  function initPlayButtons() {
+    document.querySelectorAll("video[controls]").forEach((video) => {
+      const wrap = document.createElement("div");
+      wrap.className = "play-wrap " + [...video.classList].filter((c) => c === "full" || c === "half").join(" ");
+      video.parentNode.insertBefore(wrap, video);
+      wrap.appendChild(video);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "play-button";
+      button.setAttribute("aria-label", "Play " + (video.getAttribute("aria-label") || "film"));
+      button.innerHTML = '<span aria-hidden="true">▶</span>';
+      wrap.appendChild(button);
+      const show = (on) => wrap.classList.toggle("is-playing", !on);
+      button.addEventListener("click", () => video.play());
+      video.addEventListener("play", () => show(false));
+      video.addEventListener("pause", () => show(true));
+      video.addEventListener("ended", () => {
+        video.load();  // back to the poster
+        show(true);
+      });
+    });
   }
 
   function initStockholmTime() {

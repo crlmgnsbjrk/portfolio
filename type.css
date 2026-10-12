@@ -652,3 +652,19 @@ body.type-page{
 .soon{
   color: var(--link-color);
 }
+
+/* The current typeface's name is the page's H1: no heading margins of its own */
+h1.face-name{
+  margin: 0;
+  grid-column: auto;
+}
+
+/* Overview rows: a pointer to the specimen page */
+.face-cta{
+  margin-left: 12px;
+  color: var(--text);
+}
+
+.face-link:hover .face-cta{
+  color: var(--link-color);
+}
