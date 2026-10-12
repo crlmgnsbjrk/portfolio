@@ -681,3 +681,13 @@ h1.face-name{
 .face-link:hover .face-cta{
   color: var(--link-color);
 }
+
+/* /download/<slug>: a short stop that is counted, then the zip starts */
+.download-start{
+  padding-top: clamp(16px, 4vw, 64px);
+  min-height: 50vh;
+}
+
+.download-start .download-meta{
+  max-width: none;
+}
