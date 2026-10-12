@@ -928,17 +928,22 @@ main.project + footer{
 }
 
 /* Case meta: role · years and credits on lines of their own under the tags and the link */
-.meta-role,
+/* Role · years right under the case text */
+.case-role{
+  grid-column: 4 / span 6;
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+@media (max-width: 900px){
+  .case-role{
+    grid-column: 1 / -1;
+  }
+}
+
 .meta-credits{
   flex-basis: 100%;
-}
-
-.meta-role{
-  margin-top: -8px;
-}
-
-.meta-credits{
-  margin-top: -12px;
 }
 
 /* Films with sound: the poster with a play button on top until the film starts */
@@ -984,97 +989,36 @@ main.project + footer{
   }
 }
 
-/* Work: an index of the cases, newest first */
-.work-index{
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.work-index li > a,
-.work-index .wi-head{
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: var(--gap);
-  align-items: baseline;
-  padding: 12px 0 14px;
-  border-top: 1px solid var(--line);
-  color: var(--text);
-}
-
-.work-index li:last-child > a{
-  border-bottom: 1px solid var(--line);
-}
-
-.work-index li > a:hover{
-  color: #777777;
-  text-decoration: none;
-}
-
-.work-index .wi-head{
-  color: var(--muted);
-  border-top: 0;
-  padding-top: 0;
-}
-
-.wi-years{ grid-column: span 2; }
-.wi-client{ grid-column: span 4; font-size: 18px; line-height: 1.2; }
-.wi-role{ grid-column: span 3; }
-.wi-disc{ grid-column: span 3; color: var(--muted); }
-
-.work-index .wi-head .wi-client{
-  font-size: inherit;
-}
-
-@media (max-width: 800px){
-  .work-index li > a{
-    grid-template-columns: 1fr;
-    row-gap: 2px;
-  }
-
-  .work-index .wi-head{
-    display: none;
-  }
-
-  .wi-years,
-  .wi-client,
-  .wi-role,
-  .wi-disc{
-    grid-column: 1;
-  }
-
-  .wi-years{
-    order: 2;
-    color: var(--muted);
-  }
-
-  .wi-client{
-    order: 1;
-  }
-
-  .wi-role{
-    order: 3;
-  }
-
-  .wi-disc{
-    order: 4;
-  }
-}
-
-/* About: intro under the opening line, experience with descriptions, selected awards */
+/* About: intro under the opening line, large and wide like a studio statement. One rhythm for the
+   page: --hero-after between the blocks, the same smaller step between the opening line and the intro. */
 .hero:has(+ .about-intro){
-  margin-bottom: 32px;
+  margin-bottom: clamp(24px, 3vw, 48px);
 }
 
 .about-intro{
-  max-width: 56ch;
+  max-width: 75%;
   margin-bottom: var(--hero-after);
-  font-size: 18px;
-  line-height: 1.4;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.25;
 }
 
 .about-intro p{
-  margin: 0 0 1em;
+  margin: 0 0 .7em;
+}
+
+.about-intro p:last-of-type{
+  margin-bottom: 0;
+}
+
+.about-intro + .about-grid{
+  padding-top: 0;
+}
+
+@media (max-width: 900px){
+  .about-intro{
+    max-width: none;
+  }
 }
 
 .about-cols .about-experience{
@@ -1101,7 +1045,87 @@ main.project + footer{
   color: var(--muted);
 }
 
-.about-awards{
-  grid-column: 1 / -1;
-  margin-top: 64px;
+/* Selected awards: as wide as its longest line, like the other columns; one award per entry */
+.about-cols .about-awards{
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.awards li{
+  margin-bottom: 1.5em;
+}
+
+.awards span{
+  display: block;
+}
+
+.award-list{
+  color: var(--muted);
+}
+
+/* About: the name in the opening line shows the portrait */
+.portrait-link{
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .12em;
+  cursor: zoom-in;
+}
+
+.portrait-link:hover{
+  color: inherit;
+}
+
+.portrait-float{
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  width: clamp(320px, 56vw, 1100px);
+  height: auto;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.portrait-float.is-visible{
+  opacity: 1;
+}
+
+.portrait-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: var(--bg);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s ease, visibility .3s;
+  cursor: zoom-out;
+}
+
+.portrait-overlay.is-open{
+  opacity: 1;
+  visibility: visible;
+}
+
+.portrait-overlay img{
+  max-width: 100%;
+  max-height: calc(100vh - 24px);
+  object-fit: contain;
+}
+
+.portrait-close{
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
 }

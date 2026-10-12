@@ -7,12 +7,11 @@
 
   // Fit each name to the full width of its row, measured at the weight it is drawn in.
   // While hovered the row shows another line instead, never bigger than the name itself.
-  // On a phone, a typeface page shows the other names as a compact list in their own size (CSS).
+  // A typeface page shows the other names as a compact list in their own size (CSS).
   const names = [...document.querySelectorAll("[data-fit]")];
   const onFacePage = !!document.querySelector(".type[data-styles]");
-  const phone = window.matchMedia("(max-width: 800px)");
   const canHover = window.matchMedia("(hover: hover)").matches;
-  const compact = (el) => onFacePage && phone.matches && !el.hasAttribute("data-cycle");
+  const compact = (el) => onFacePage && !el.hasAttribute("data-cycle");
   const fit = (el) => {
     if (compact(el)) {
       el.style.fontSize = "";
@@ -56,7 +55,7 @@
     const name = el.textContent;
     const lines = (el.dataset.hover || "").split("|").filter(Boolean);
     const link = el.parentElement;
-    link.setAttribute("aria-label", name);
+    if (link.tagName === "A") link.setAttribute("aria-label", name);
     // Tracking of its own (Askew: tight) while the name stands still at its resting weight
     const still = () => {
       el.style.letterSpacing = !el.dataset.hovering && +el.style.fontWeight === rest ? el.dataset.tracking || "" : "";

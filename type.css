@@ -615,37 +615,50 @@ body.type-page{
   color: var(--muted);
 }
 
-/* Phone, typeface page: the other typefaces become a compact list, so the chosen one and its
-   details come straight into view */
-@media (max-width: 800px){
-  .type:not(.type-index) .face-nav{
-    margin-bottom: 32px;
-  }
+/* Typeface page: every typeface on one row at the top, small and in its own font, white like the
+   menu; the others dimmed, the current one underlined. Below it the current one, big. */
+.face-tabs{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 32px;
+  row-gap: 8px;
+  padding-top: clamp(16px, 4vw, 64px);
+  margin-bottom: 24px;
+}
 
-  .type:not(.type-index) .face-link:not(.is-current){
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    padding: 10px 0 8px;
-  }
+.face-tab{
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid transparent;
+  color: var(--text);
+  font-family: var(--face);
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.1;
+  text-decoration: none;
+  opacity: .4;
+  transition: opacity .2s ease;
+}
 
-  .type:not(.type-index) .face-link:not(.is-current) .face-num{
-    position: static;
-  }
+.face-tab:hover{
+  opacity: 1;
+  text-decoration: none;
+}
 
-  .type:not(.type-index) .face-link:not(.is-current) .face-name{
-    padding-top: 0;
-    font-size: 28px;
-    line-height: 1.1;
-  }
+.face-tab.is-current{
+  opacity: 1;
+  border-bottom-color: var(--text);
+}
 
-  .type:not(.type-index) .face-link:not(.is-current) .face-meta{
-    display: none;
-  }
+.face-tab .face-num{
+  position: static;
+}
 
-  .type:not(.type-index) .face-link.is-current{
-    padding-top: 16px;
-  }
+.face-tabs + .face-link{
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--line);
 }
 
 /* "Coming soon": the link colour, but not a link */

@@ -405,7 +405,54 @@
   window.addEventListener("resize", onScroll);
   updateHeaderColor();
   initPlayButtons();
+  initPortrait();
   initStockholmTime();
+
+  // About: the portrait follows the pointer over the name; a click opens it in an overlay
+  function initPortrait() {
+    const link = document.querySelector("[data-portrait]");
+    if (!link) {
+      return;
+    }
+    const src = link.dataset.portrait;
+    const float = document.createElement("img");
+    float.className = "portrait-float";
+    float.src = src;
+    float.alt = "";
+    float.setAttribute("aria-hidden", "true");
+    document.body.appendChild(float);
+    if (window.matchMedia("(hover: hover)").matches) {
+      link.addEventListener("mousemove", (e) => {
+        // Next to the pointer, kept inside the window
+        const x = Math.min(e.clientX + 24, window.innerWidth - float.offsetWidth - 12);
+        const y = Math.max(12, Math.min(e.clientY - float.offsetHeight / 2, window.innerHeight - float.offsetHeight - 12));
+        float.style.transform = `translate(${x}px, ${y}px)`;
+      });
+      link.addEventListener("mouseenter", () => float.classList.add("is-visible"));
+      link.addEventListener("mouseleave", () => float.classList.remove("is-visible"));
+    }
+
+    const overlay = document.createElement("div");
+    overlay.className = "portrait-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-label", "Portrait of Carl Magnus Björk");
+    overlay.innerHTML = `<img src="${src}" alt="Carl Magnus Björk behind frosted glass, one hand against it"><button type="button" class="portrait-close" aria-label="Close">×</button>`;
+    document.body.appendChild(overlay);
+    const close = () => {
+      overlay.classList.remove("is-open");
+      link.focus();
+    };
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      float.classList.remove("is-visible");
+      overlay.classList.add("is-open");
+      overlay.querySelector("button").focus();
+    });
+    overlay.addEventListener("click", close);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && overlay.classList.contains("is-open")) close();
+    });
+  }
 
   // Films with sound (native controls): the poster stays visible with a clear play button on top
   function initPlayButtons() {
