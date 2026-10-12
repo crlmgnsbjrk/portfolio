@@ -81,7 +81,7 @@
   --radius:0px;
   --max:none;
   --gap:12px;
-  --hero-after: clamp(80px, 10vw, 160px);  /* space under the big intro text */
+  --hero-after: clamp(48px, 10vw, 160px);  /* space under the big intro text */
   --link-color:#3604FE;
 }
 
@@ -458,7 +458,7 @@ h3{
 .copy{
   grid-column: 4 / span 6;
   font-size:13px;
-  margin:0 0 6px;
+  margin:0 0 4px;
   max-width: 70ch;
 }
 
@@ -931,7 +931,7 @@ main.project + footer{
 /* Role · years right under the case text */
 .case-role{
   grid-column: 4 / span 6;
-  margin: 0 0 16px;
+  margin: -2px 0 4px;  /* even steps: text, role, tags, link */
   font-size: 13px;
   color: var(--muted);
 }
@@ -991,7 +991,9 @@ main.project + footer{
 
 /* About: intro under the opening line, large and wide like a studio statement. One rhythm for the
    page: --hero-after between the blocks, the same smaller step between the opening line and the intro. */
-.hero:has(+ .about-intro){
+.hero:has(+ .about-intro),
+.hero:has(+ picture > .portrait-inline),
+.hero:has(+ .portrait-inline){
   margin-bottom: clamp(24px, 3vw, 48px);
 }
 
@@ -1128,4 +1130,18 @@ main.project + footer{
   font-size: 28px;
   line-height: 1;
   cursor: pointer;
+}
+
+/* About on touch screens (no hover): the portrait sits right under the opening line */
+.portrait-inline{
+  display: none;
+}
+
+@media (hover: none){
+  .portrait-inline{
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0 0 clamp(24px, 3vw, 48px);
+  }
 }

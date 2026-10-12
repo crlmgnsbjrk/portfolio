@@ -691,3 +691,13 @@ h1.face-name{
 .download-start .download-meta{
   max-width: none;
 }
+
+@media (max-width: 800px){
+  .face-tabs{
+    column-gap: 16px;
+  }
+
+  .face-tab{
+    font-size: 18px;
+  }
+}

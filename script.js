@@ -159,7 +159,8 @@
   // shown; data-shuffle mixes the order on every visit; data-interval sets ms per image (3000).
   function initTileShows() {
     document.querySelectorAll(".tile-show[data-tiles]").forEach((show) => {
-      let paths = show.dataset.tiles.trim().split(/\s+/);
+      // Paths count from the site root, so slideshows work on pages in subfolders too
+      let paths = show.dataset.tiles.trim().split(/\s+/).map((p) => (p.startsWith("/") ? p : "/" + p));
       if (show.hasAttribute("data-shuffle")) {
         for (let i = paths.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
