@@ -701,3 +701,44 @@ h1.face-name{
     font-size: 18px;
   }
 }
+
+/* Sticky download button: solid, in the typeface on show, steps aside at the download section */
+.sticky-download{
+  position: fixed;
+  right: 12px;
+  bottom: 52px;
+  z-index: 11;
+  padding: 12px 20px 13px;
+  border-radius: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--link-color);  /* the same colour as the links in the ticker, new on every visit */
+  color: #fff;
+  font-family: var(--face);
+  font-size: clamp(16px, 1.4vw, 20px);
+  line-height: 1.1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform .2s ease, opacity .25s ease;
+}
+
+.sticky-download:hover{
+  color: #fff;
+  text-decoration: none;
+  transform: scale(1.04);
+}
+
+.sticky-download.is-hidden{
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+
+.sticky-download .floppy{
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
