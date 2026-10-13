@@ -676,6 +676,7 @@ h1.face-name{
 .face-cta{
   margin-left: 12px;
   color: var(--text);
+  white-space: nowrap;  /* the arrow stays with its words */
 }
 
 .face-link:hover .face-cta{

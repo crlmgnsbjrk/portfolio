@@ -81,7 +81,7 @@
   --radius:0px;
   --max:none;
   --gap:12px;
-  --hero-after: clamp(48px, 10vw, 160px);  /* space under the big intro text */
+  --hero-after: clamp(64px, 10vw, 160px);  /* space under the big intro text */
   --link-color:#3604FE;
 }
 
@@ -1068,14 +1068,13 @@ main.project + footer{
 /* About: the name in the opening line shows the portrait */
 .portrait-link{
   color: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: .12em;
+  text-decoration: none;
   cursor: zoom-in;
 }
 
 .portrait-link:hover{
   color: inherit;
+  text-decoration: none;
 }
 
 .portrait-float{
