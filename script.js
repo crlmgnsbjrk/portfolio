@@ -29,6 +29,7 @@
   initScrambleNav();
   initDitherCards();
   initTileShows();
+  initBounce();
   initSoundToggles();
 
   // Press T: the whole site as a 90s text-only browser would render it
@@ -191,8 +192,7 @@
       load(1);
       layers[0].classList.add("is-active");
       if (layers.length < 2) return;
-      window.setInterval(() => {
-        if (document.hidden) return;
+      const next = () => {
         layers[current].classList.remove("is-active");
         current = (current + 1) % layers.length;
         layers[current].classList.add("is-active");
@@ -203,9 +203,55 @@
           void show.offsetWidth;
           show.classList.add("is-flashing");
         }
+      };
+      // A bouncing slideshow (data-bounce) changes image when it hits an edge; the others on a timer
+      show.addEventListener("tile-next", next);
+      if (show.hasAttribute("data-bounce") && !reducedMotion) return;
+      window.setInterval(() => {
+        if (!document.hidden) next();
       }, Number(show.dataset.interval) || 3000);
     });
   }
+
+  // An element drifting around the window like an old screensaver, bouncing off the edges.
+  // A bouncing slideshow (.tile-show[data-bounce]) changes image on every bounce.
+  function bounce(el, speed = 90) {
+    if (reducedMotion) return;
+    el.classList.add("is-bouncing");
+    let x = Math.random() * Math.max(0, window.innerWidth - el.offsetWidth);
+    let y = Math.random() * Math.max(0, window.innerHeight - el.offsetHeight);
+    let dx = Math.random() < 0.5 ? -1 : 1;
+    let dy = Math.random() < 0.5 ? -1 : 1;
+    let last = performance.now();
+    const step = (now) => {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const maxX = window.innerWidth - el.offsetWidth;
+      const maxY = window.innerHeight - el.offsetHeight;
+      x += dx * speed * dt;
+      y += dy * speed * dt;
+      let hit = false;
+      if (x <= 0 || x >= maxX) {
+        dx = x <= 0 ? 1 : -1;
+        x = Math.max(0, Math.min(x, maxX));
+        hit = true;
+      }
+      if (y <= 0 || y >= maxY) {
+        dy = y <= 0 ? 1 : -1;
+        y = Math.max(0, Math.min(y, maxY));
+        hit = true;
+      }
+      if (hit) el.dispatchEvent(new Event("tile-next"));
+      el.style.transform = `translate(${x}px, ${y}px)`;
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  function initBounce() {
+    document.querySelectorAll(".tile-show[data-bounce]").forEach((show) => bounce(show));
+  }
+
 
   // Card images turn into 1-bit Atkinson-dithered pictures on hover, like an old Mac screen
   function initDitherCards() {
@@ -422,15 +468,12 @@
     float.alt = "";
     float.setAttribute("aria-hidden", "true");
     document.body.appendChild(float);
+    // On screens with a pointer the portrait bounces around the window; touch screens show it inline
     if (window.matchMedia("(hover: hover)").matches) {
-      link.addEventListener("mousemove", (e) => {
-        // Next to the pointer, kept inside the window
-        const x = Math.min(e.clientX + 24, window.innerWidth - float.offsetWidth - 12);
-        const y = Math.max(12, Math.min(e.clientY - float.offsetHeight / 2, window.innerHeight - float.offsetHeight - 12));
-        float.style.transform = `translate(${x}px, ${y}px)`;
-      });
-      link.addEventListener("mouseenter", () => float.classList.add("is-visible"));
-      link.addEventListener("mouseleave", () => float.classList.remove("is-visible"));
+      float.classList.add("is-visible");
+      const start = () => bounce(float, 110);
+      if (float.complete) start();
+      else float.addEventListener("load", start, { once: true });
     }
 
     const overlay = document.createElement("div");
@@ -441,6 +484,7 @@
     document.body.appendChild(overlay);
     const close = () => {
       overlay.classList.remove("is-open");
+      if (window.matchMedia("(hover: hover)").matches) float.classList.add("is-visible");
       link.focus();
     };
     link.addEventListener("click", (e) => {

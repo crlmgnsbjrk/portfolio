@@ -1145,3 +1145,15 @@ main.project + footer{
     margin: 0 0 clamp(24px, 3vw, 48px);
   }
 }
+
+/* Anything bouncing around the window (see bounce() in script.js) sits fixed at the top left and
+   is moved with transform */
+.media .tile-show.is-bouncing{
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  width: clamp(220px, 34vw, 560px);
+  pointer-events: none;
+  will-change: transform;
+}
