@@ -201,6 +201,7 @@ h3{
 }
 
 .hero{
+  text-wrap: pretty;  /* no single word alone on the last line */
   font-size: clamp(28px, 5vw, 64px);
   font-weight: 300;
   line-height:1.05;
