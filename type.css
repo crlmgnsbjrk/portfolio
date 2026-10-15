@@ -709,10 +709,10 @@ h1.face-name{
   right: 12px;
   /* Placed from the top of the smallest visible viewport (svh), not from the bottom edge, so it
      stays in view when Safari's toolbar folds away and the footer slides down */
-  top: calc(100svh - 64px);
+  top: calc(100svh - 52px);
   transform: translateY(-100%);
   z-index: 11;
-  padding: 12px 20px 13px;
+  padding: 17px 22px 18px;
   border-radius: 0;
   display: inline-flex;
   align-items: center;
@@ -745,8 +745,8 @@ h1.face-name{
 /* Phones: a little smaller, sitting right on top of the footer ticker */
 @media (max-width: 800px){
   .sticky-download{
-    top: calc(100svh - 60px);
-    padding: 8px 12px 9px;
+    top: calc(100svh - 44px);
+    padding: 13px 16px 14px;
     font-size: 15px;
     gap: 8px;
   }
