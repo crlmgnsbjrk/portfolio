@@ -607,7 +607,7 @@ body.type-page{
 .face-pager{
   margin: 0 0 96px;
   gap: 24px;
-  font-size: clamp(28px, 4vw, 64px);
+  font-size: clamp(20px, 2.4vw, 36px);
   line-height: 1.1;
 }
 
@@ -703,11 +703,14 @@ h1.face-name{
   }
 }
 
-/* Sticky download button: solid, in the typeface on show, steps aside at the download section */
+/* Sticky download button: solid, in the typeface on show, always in view */
 .sticky-download{
   position: fixed;
   right: 12px;
-  bottom: 52px;
+  /* Placed from the top of the smallest visible viewport (svh), not from the bottom edge, so it
+     stays in view when Safari's toolbar folds away and the footer slides down */
+  top: calc(100svh - 64px);
+  transform: translateY(-100%);
   z-index: 11;
   padding: 12px 20px 13px;
   border-radius: 0;
@@ -727,14 +730,9 @@ h1.face-name{
 .sticky-download:hover{
   color: #fff;
   text-decoration: none;
-  transform: scale(1.04);
+  transform: translateY(-100%) scale(1.04);
 }
 
-.sticky-download.is-hidden{
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px);
-}
 
 
 .sticky-download .floppy{
@@ -747,7 +745,7 @@ h1.face-name{
 /* Phones: a little smaller, sitting right on top of the footer ticker */
 @media (max-width: 800px){
   .sticky-download{
-    bottom: 44px;
+    top: calc(100svh - 60px);
     padding: 8px 12px 9px;
     font-size: 15px;
     gap: 8px;
