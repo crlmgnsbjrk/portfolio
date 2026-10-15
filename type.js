@@ -114,6 +114,15 @@
   });
   fitAll();
 
+  // The sticky download button steps aside from the download section on down
+  const grab = document.querySelector(".sticky-download");
+  const downloadSection = document.getElementById("download");
+  if (grab && downloadSection && "IntersectionObserver" in window) {
+    new IntersectionObserver(([entry]) => {
+      grab.classList.toggle("is-hidden", entry.isIntersecting || entry.boundingClientRect.top < 0);
+    }).observe(downloadSection);
+  }
+
   const main = document.querySelector(".type[data-styles]");
   if (!main) return;
   const STYLES = main.dataset.styles.split(" ").map((s) => {

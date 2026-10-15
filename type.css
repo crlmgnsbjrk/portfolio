@@ -472,11 +472,12 @@ body.type-page{
 
 .license-mail{
   font-size: clamp(24px, 3.2vw, 44px);
-  color: var(--text);
+  color: var(--link-color);
 }
 
 .license-mail:hover{
   color: var(--link-color);
+  text-decoration: underline;
 }
 
 @media (max-width: 800px){
@@ -703,7 +704,7 @@ h1.face-name{
   }
 }
 
-/* Sticky download button: solid, in the typeface on show, always in view */
+/* Sticky download button: solid, in the typeface on show, in view until the download section */
 .sticky-download{
   position: fixed;
   right: 12px;
@@ -750,4 +751,10 @@ h1.face-name{
     font-size: 15px;
     gap: 8px;
   }
+}
+
+/* The button steps aside once the download section, with its own link, is reached */
+.sticky-download.is-hidden{
+  opacity: 0;
+  pointer-events: none;
 }
