@@ -366,6 +366,8 @@ body.type-page{
 .styles-list .style-sample{
   font-size: clamp(36px, 6vw, 88px);
   line-height: 1.05;
+  padding-bottom: .18em;  /* room for descenders (the j in Spacjinx), which overflow: hidden would cut */
+  margin-bottom: -.18em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: clip;
@@ -713,7 +715,7 @@ h1.face-name{
   top: calc(100svh - 52px);
   transform: translateY(-100%);
   z-index: 11;
-  padding: 17px 22px 18px;
+  padding: 14px 18px 15px;
   border-radius: 0;
   display: inline-flex;
   align-items: center;
@@ -721,7 +723,7 @@ h1.face-name{
   background: var(--link-color);  /* the same colour as the links in the ticker, new on every visit */
   color: #fff;
   font-family: var(--face);
-  font-size: clamp(16px, 1.4vw, 20px);
+  font-size: clamp(14px, 1.1vw, 16px);
   line-height: 1.1;
   text-decoration: none;
   white-space: nowrap;
@@ -747,8 +749,8 @@ h1.face-name{
 @media (max-width: 800px){
   .sticky-download{
     top: calc(100svh - 44px);
-    padding: 13px 16px 14px;
-    font-size: 15px;
+    padding: 12px 14px 13px;
+    font-size: 14px;
     gap: 8px;
   }
 }
@@ -758,3 +760,4 @@ h1.face-name{
   opacity: 0;
   pointer-events: none;
 }
+

@@ -90,6 +90,7 @@
         if (n === last && lines.length > 1) n = (n + 1) % lines.length;
         last = n;
         link.style.height = link.offsetHeight + "px";  // the row keeps its height
+        el.style.height = el.offsetHeight + "px";  // and the line under the name stays put
         el.dataset.hovering = "1";
         el.textContent = lines[n];
         still();
@@ -102,6 +103,7 @@
       delete el.dataset.hovering;
       el.textContent = name;
       link.style.height = "";
+      if (!always) el.style.height = "";
       if (always) run(180);
       else {
         window.clearInterval(timer);

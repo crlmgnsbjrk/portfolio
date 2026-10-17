@@ -61,6 +61,7 @@
 
   // Netscape-style status bar: [████░░░░░░] 4/10 while the images in view load, then "Done"
   function initLoadMeter() {
+    if (window.location.pathname.startsWith("/work")) return;  // not on Work and the cases
     const media = [...document.querySelectorAll("img[data-lqip], video[data-lqip]")];
     if (!media.length || !("IntersectionObserver" in window)) return;
     const meter = document.createElement("div");
