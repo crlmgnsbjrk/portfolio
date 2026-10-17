@@ -1083,7 +1083,7 @@ main.project + footer{
   top: 0;
   left: 0;
   z-index: 20;
-  width: clamp(320px, 56vw, 1100px);
+  width: clamp(220px, 28vw, 520px);
   height: auto;
   pointer-events: none;
   opacity: 0;
