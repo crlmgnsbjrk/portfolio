@@ -667,10 +667,16 @@ video[data-lqip]{
   position: relative;
 }
 
-.sound-toggle{
+/* Bottom-right control box on films: ▶ for films that wait for a click, ♪ for sound */
+.video-controls{
   position: absolute;
   right: 12px;
   bottom: 12px;
+  display: flex;
+  gap: 4px;
+}
+
+.sound-toggle{
   padding: 4px 9px;
   border: 0;
   font: inherit;
@@ -689,7 +695,7 @@ video[data-lqip]{
   text-decoration: line-through;
 }
 
-.text-mode .sound-toggle{
+.text-mode .video-controls{
   display: none;
 }
 
@@ -945,49 +951,6 @@ main.project + footer{
 
 .meta-credits{
   flex-basis: 100%;
-}
-
-/* Films with sound: the poster with a play button on top until the film starts */
-.media .play-wrap{
-  position: relative;
-}
-
-.play-button{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  display: grid;
-  place-items: center;
-  width: 88px;
-  height: 88px;
-  margin: -44px 0 0 -44px;
-  padding: 0 0 0 6px;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, .88);
-  color: #000;
-  font: inherit;
-  font-size: 28px;
-  cursor: pointer;
-  transition: transform .2s ease, background .2s ease;
-}
-
-.play-button:hover{
-  transform: scale(1.06);
-  background: #fff;
-}
-
-.play-wrap.is-playing .play-button{
-  display: none;
-}
-
-@media (max-width: 800px){
-  .play-button{
-    width: 64px;
-    height: 64px;
-    margin: -32px 0 0 -32px;
-    font-size: 20px;
-  }
 }
 
 /* About: intro under the opening line, large and wide like a studio statement. One rhythm for the

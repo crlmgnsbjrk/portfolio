@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Nodes | ϲ.ɱ.ɓʝöɾκ — studio | Carl Magnus Björk</title>
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <!-- Sketch: Google Fonts and Fontshare load from their CDNs for now. Self-host before this goes live. -->
+  <link rel="stylesheet" href="/type.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Fraunces:opsz,wght@9..144,100..900&family=Recursive:wght@300..1000&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@200,400,700&f[]=cabinet-grotesk@100,500,900&f[]=boska@200,400,900&f[]=panchang@200,500,800&display=swap">
+  <style>
+    @font-face{font-family:"Almost Swiss";src:url("/fonts/almost-swiss-thin.woff2") format("woff2");font-weight:100}
+    @font-face{font-family:"Almost Swiss";src:url("/fonts/almost-swiss-light.woff2") format("woff2");font-weight:300}
+    @font-face{font-family:"Almost Swiss";src:url("/fonts/almost-swiss-regular.woff2") format("woff2");font-weight:400}
+    @font-face{font-family:"Almost Swiss";src:url("/fonts/almost-swiss-bold.woff2") format("woff2");font-weight:700}
+    @font-face{font-family:"Almost Swiss";src:url("/fonts/almost-swiss-black.woff2") format("woff2");font-weight:900}
+
+    :root{
+      --bg:#f6f6f4;
+      --text:rgba(0,0,0,.88);
+      --muted:rgba(0,0,0,.6);
+      --gap:12px;
+    }
+    html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+      font-family:"Almost Swiss",system-ui,sans-serif;font-weight:400;letter-spacing:0;-webkit-font-smoothing:antialiased}
+    #art{position:fixed;inset:0;width:100%;height:100%;display:block}
+    #threads{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:difference}
+    #field{position:fixed;inset:0;touch-action:none;cursor:crosshair}
+    .tag,button{display:inline-block;padding:6px 10px;background:var(--bg);color:var(--text);
+      font:inherit;font-size:14px;line-height:1.1;border:0;border-radius:0;white-space:nowrap;user-select:none;-webkit-user-select:none}
+    button{cursor:pointer}
+    button:hover{background:#000;color:#fff}
+    button.off{color:var(--muted)}
+    .node{position:absolute;left:0;top:0;cursor:grab;touch-action:none}
+    .node.dragging{cursor:grabbing}
+    .node.target,.node.selected{background:#000;color:#fff}
+    .node .x{display:none;margin-left:8px;cursor:pointer;color:rgba(255,255,255,.7)}
+    .node .x:hover{color:#fff}
+    .node.selected .x{display:inline}
+    .muted{color:var(--muted)}
+    header{position:fixed;top:var(--gap);left:var(--gap);right:var(--gap);display:flex;justify-content:space-between;
+      align-items:flex-start;gap:var(--gap);pointer-events:none;z-index:3}
+    header > div{display:flex;gap:6px;flex-wrap:wrap;pointer-events:auto}
+    #tray{position:fixed;left:var(--gap);right:var(--gap);bottom:var(--gap);display:flex;gap:6px;flex-wrap:wrap;z-index:3}
+    #tray .tag{cursor:grab;touch-action:none}
+    #hint{transition:opacity .6s}
+    @media (max-width:600px){#hint{display:none}}
+  </style>
+</head>
+<body>
+  <canvas id="art"></canvas>
+  <svg id="threads"></svg>
+  <div id="field"></div>
+  <header>
+    <div>
+      <a class="tag" href="/" style="text-decoration:none">ϲ.ɱ.ɓʝöɾκ</a>
+      <span class="tag">Lab · Nodes</span>
+      <span class="tag muted" id="hint">Click a word, then another, to connect them. Swipe across a thread to cut. Click a word and × to remove it.</span>
+    </div>
+    <div>
+      <button id="sound" title="Sound">♪</button>
+      <button id="save">Save image</button>
+      <button id="clear">Clear</button>
+    </div>
+  </header>
+  <div id="tray"></div>
+
+<script>
+// Every word carries hidden traits. temp: cold −1 … warm +1. The rest run 0 … 1.
+// note is a step on a pentatonic scale. font is the typeface the word belongs to.
+const WORDS = {
+  quiet:   {temp:-.2, weight:.15, tempo:.1,  round:.6,  note:4,  font:"Boska"},
+  loud:    {temp:.6,  weight:.95, tempo:.8,  round:.3,  note:0,  font:"Anybody"},
+  warm:    {temp:.9,  weight:.5,  tempo:.35, round:.85, note:2,  font:"Fraunces"},
+  cold:    {temp:-.9, weight:.3,  tempo:.2,  round:.05, note:9,  font:"Almost Swiss"},
+  raw:     {temp:.1,  weight:.85, tempo:.55, round:0,   note:1,  font:"Bricolage Grotesque"},
+  exact:   {temp:-.5, weight:.4,  tempo:.3,  round:0,   note:7,  font:"Panchang"},
+  soft:    {temp:.4,  weight:.2,  tempo:.25, round:1,   note:5,  font:"Fraunces"},
+  heavy:   {temp:-.1, weight:1,   tempo:.1,  round:.4,  note:0,  font:"Cabinet Grotesk"},
+  playful: {temp:.7,  weight:.6,  tempo:.95, round:.9,  note:8,  font:"Recursive"},
+  nordic:  {temp:-.7, weight:.35, tempo:.3,  round:.3,  note:6,  font:"Almost Swiss"},
+  strange: {temp:0,   weight:.5,  tempo:.7,  round:.5,  note:3,  font:"Askew"},
+  fast:    {temp:.3,  weight:.7,  tempo:1,   round:.2,  note:10, font:"Clash Display"},
+};
+const FONT_RANGE = {
+  "Boska":[200,900], "Anybody":[100,900], "Fraunces":[100,900], "Almost Swiss":[100,900],
+  "Bricolage Grotesque":[200,800], "Panchang":[200,800], "Cabinet Grotesk":[100,900],
+  "Recursive":[300,1000], "Askew":[200,600], "Clash Display":[200,700],
+};
+const TRAITS = ["temp","weight","tempo","round"];
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- helpers ----------
+function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){let s=(seed>>>0)||1;return()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296}}
+const lerp=(a,b,k)=>a+(b-a)*k;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const hsl=(h,s,l,a=1)=>`hsl(${((h%360)+360)%360} ${clamp(s,0,100)}% ${clamp(l,0,100)}% / ${a})`;
+const edgeKey=(a,b)=>[a,b].sort().join("+");
+
+// ---------- state ----------
+const art=document.getElementById("art"), ctx=art.getContext("2d");
+const threads=document.getElementById("threads"), field=document.getElementById("field"), tray=document.getElementById("tray");
+const nodes=new Map();   // word -> {word,x,y,vx,vy,el}
+const edges=new Set();   // "a+b"
+let layers=new Map();    // key -> layer
+const bg={h:60,s:9,l:96}, bgTarget={h:60,s:9,l:96};
+let bgHue=60;
+let W=innerWidth, H=innerHeight, dpr=1;
+
+// ---------- graph ----------
+function clusters(){
+  const adj=new Map([...nodes.keys()].map(w=>[w,[]]));
+  for(const e of edges){const [a,b]=e.split("+");adj.get(a).push(b);adj.get(b).push(a)}
+  const seen=new Set(), out=[];
+  for(const w of [...nodes.keys()].sort()){
+    if(seen.has(w))continue;
+    const stack=[w], c=[]; seen.add(w);
+    while(stack.length){const x=stack.pop();c.push(x);for(const y of adj.get(x))if(!seen.has(y)){seen.add(y);stack.push(y)}}
+    out.push(c.sort());
+  }
+  return out;
+}
+const average=(words,k)=>words.reduce((s,w)=>s+WORDS[w][k],0)/words.length;
+function canonical(){return [...nodes.keys()].sort().join(",")+"|"+[...edges].sort().join(",")}
+function number(){return hash(canonical()).toString(16).toUpperCase().padStart(8,"0").slice(-4)}
+
+// A cluster becomes a layer. A lone word in a map that has threads becomes a stranger.
+function makeLayer(words, stranger){
+  const key=words.join("+")+(stranger?"!":"");
+  const L={key,words,stranger,alpha:0,dying:false,seed:hash(key)};
+  for(const k of TRAITS)L[k]=average(words,k);
+  // The typeface comes from the word closest to the cluster's average.
+  let best=words[0], bd=Infinity;
+  for(const w of words){const d=TRAITS.reduce((s,k)=>s+(WORDS[w][k]-L[k])**2,0);if(d<bd){bd=d;best=w}}
+  L.font=WORDS[best].font;
+  const r=rng(L.seed);
+  L.hueJ=(r()-.5)*30;
+  const n=stranger?1:2+Math.min(words.length,4);
+  L.shapes=Array.from({length:n},()=>({x:r(),y:r(),s:.12+r()*.38,rot:r()*Math.PI*2,ph:r()*6.283,ar:.45+r()*1.1,kind:r()}));
+  L.type=words.slice(0,3).map(w=>({text:stranger?w[0]:w,x:r()*.8+.1,y:r()*.8+.15,ph:r()*6.283,turn:r()<.35}));
+  L.band={x:r()*.6,y:r()*.6,w:.25+r()*.4,h:.2+r()*.4,vertical:r()<.5};
+  return L;
+}
+
+function sync(){
+  const hasEdges=edges.size>0;
+  const next=new Map();
+  for(const c of clusters()){
+    const stranger=hasEdges&&c.length===1;
+    const key=c.join("+")+(stranger?"!":"");
+    next.set(key, layers.get(key)||makeLayer(c,stranger));
+    next.get(key).dying=false;
+  }
+  for(const [k,L] of layers)if(!next.has(k)){L.dying=true;next.set(k,L)}
+  layers=next;
+
+  const ws=[...nodes.keys()];
+  if(ws.length){
+    const t=average(ws,"temp"), wt=average(ws,"weight");
+    bgTarget.h=bgHue=tempHue(t); bgTarget.s=4+Math.abs(t)*20; bgTarget.l=wt>.62?9:95;
+  }else Object.assign(bgTarget,{h:60,s:9,l:96});
+
+  history.replaceState(null,"",nodes.size?"#"+canonical():location.pathname);
+  renderTray();
+}
+
+// ---------- drawing ----------
+// Cold runs through blue, warm through orange to red. Near neutral the colour greys out,
+// so the jump between the two sides never shows.
+const tempHue=t=>t<0?lerp(200,228,-t):lerp(42,4,t);
+function layerColor(L,dark,shift=0){
+  const h=tempHue(L.temp)+L.hueJ+shift;
+  const s=28+Math.abs(L.temp)*55+L.tempo*15;
+  const l=dark?24+(1-L.weight)*22:30+(1-L.weight)*40;
+  return {h,s,l};
+}
+
+function shapePath(c,sh,L,size){
+  c.beginPath();
+  if(L.round>.66){
+    const ar=L.round>.85?1:sh.ar;
+    c.ellipse(0,0,size/2,size*ar/2,0,0,Math.PI*2);
+  }else if(L.round>.3){
+    const w=size, h=size*sh.ar;
+    c.roundRect(-w/2,-h/2,w,h,Math.min(w,h)*L.round*.5);
+  }else if(sh.kind<.6){
+    const w=size, h=size*sh.ar; c.rect(-w/2,-h/2,w,h);
+  }else{
+    c.moveTo(0,-size/2);c.lineTo(size/2,size/2);c.lineTo(-size/2,size/2);c.closePath();
+  }
+}
+
+function drawLayer(c,L,w,h,t,dark,alpha){
+  const S=Math.min(w,h);
+  const speed=.05+L.tempo*.5;
+  let amp=(.015+L.tempo*.07)*(reduced?.3:1);
+  // Nervous layers jump in steps instead of gliding.
+  let jx=0, jy=0;
+  if(L.tempo>.75||L.stranger){
+    const j=rng(L.seed+Math.floor(t*8)); const k=(L.stranger?.012:.006)*(reduced?.3:1);
+    jx=(j()-.5)*k; jy=(j()-.5)*k;
+  }
+  const blend=L.stranger||dark?"source-over":"multiply";
+  const base=layerColor(L,dark);
+  const strangerHue=bgHue+180;
+
+  c.save();
+  c.globalCompositeOperation=blend;
+
+  // Fine parallel lines for sharp layers.
+  if(L.round<.4&&!L.stranger){
+    const b=L.band, bx=b.x*w, by=b.y*h, bw=b.w*w, bh=b.h*h;
+    c.save(); c.beginPath(); c.rect(bx,by,bw,bh); c.clip();
+    c.globalAlpha=alpha*.8;
+    c.strokeStyle=hsl(base.h,base.s,dark?75:20);
+    c.lineWidth=S/1000*(.6+L.weight*2.4);
+    const gap=S*(.008+(1-L.tempo)*.03);
+    const off=(t*speed*S*.05)%gap;
+    c.beginPath();
+    if(b.vertical){for(let x=bx-gap+off;x<bx+bw;x+=gap){c.moveTo(x,by);c.lineTo(x,by+bh)}}
+    else{for(let y=by-gap+off;y<by+bh;y+=gap){c.moveTo(bx,y);c.lineTo(bx+bw,y)}}
+    c.stroke(); c.restore();
+  }
+
+  // Shapes.
+  L.shapes.forEach((sh,i)=>{
+    const cx=(sh.x+Math.sin(t*speed+sh.ph)*amp+jx)*w;
+    const cy=(sh.y+Math.cos(t*speed*.8+sh.ph)*amp+jy)*h;
+    const size=sh.s*S*(.6+L.weight*.8)*(L.stranger?.28:1);
+    let rot=L.round<.35?Math.round(sh.rot/(Math.PI/2))*(Math.PI/2):sh.rot+t*speed*.15*L.round;
+    const col=L.stranger?{h:strangerHue,s:85,l:dark?60:52}:i%2?layerColor(L,dark,(L.tempo-.5)*60):base;
+    c.save(); c.translate(cx,cy); c.rotate(rot);
+    c.globalAlpha=alpha*(L.stranger?1:.85);
+    shapePath(c,sh,L,size);
+    c.fillStyle=hsl(col.h,col.s,col.l); c.fill();
+    c.restore();
+  });
+
+  // Type: the words themselves, huge and cropped.
+  const [lo,hi]=FONT_RANGE[L.font]||[100,900];
+  const wght=Math.round(lerp(lo,hi,L.weight));
+  L.type.forEach(tp=>{
+    const fs=L.stranger?S*.2:S*(.45+L.weight*.6);
+    c.save();
+    c.font=`${wght} ${fs}px "${L.font}"`;
+    if("fontStretch" in c&&L.font==="Anybody")c.fontStretch=L.weight>.7?"ultra-expanded":"normal";
+    const x=(tp.x+Math.sin(t*speed*.6+tp.ph)*amp*1.5+jx)*w;
+    const y=(tp.y+Math.cos(t*speed*.5+tp.ph)*amp+jy)*h;
+    c.translate(x,y);
+    c.rotate(L.round<.35?(tp.turn?-Math.PI/2:0):Math.sin(t*speed*.4+tp.ph)*.08*L.round);
+    c.textAlign="center"; c.textBaseline="middle";
+    const col=L.stranger?{h:strangerHue,s:85,l:dark?70:35}:base;
+    c.globalAlpha=alpha*.9;
+    if(L.weight>.45||L.stranger){c.fillStyle=hsl(col.h,col.s,dark?col.l+20:col.l-20);c.fillText(tp.text,0,0)}
+    else{c.strokeStyle=hsl(col.h,col.s,dark?col.l+20:col.l-20);c.lineWidth=S/1000*(1+L.weight*3);c.strokeText(tp.text,0,0)}
+    c.restore();
+  });
+  c.restore();
+}
+
+function draw(c,w,h,t,final=false){
+  c.save();
+  c.globalCompositeOperation="source-over"; c.globalAlpha=1;
+  c.fillStyle=hsl(bg.h,bg.s,bg.l); c.fillRect(0,0,w,h);
+  const dark=bg.l<50;
+  const list=[...layers.values()].filter(L=>!(final&&L.dying));
+  for(const L of list)if(!L.stranger)drawLayer(c,L,w,h,t,dark,final?1:L.alpha);
+  for(const L of list)if(L.stranger)drawLayer(c,L,w,h,t,dark,final?1:L.alpha);
+  c.restore();
+}
+
+function drawThreads(){
+  let s="";
+  for(const e of edges){
+    const [a,b]=e.split("+").map(w=>nodes.get(w));
+    s+=`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#fff" stroke-width="1"/>`;
+  }
+  const now=performance.now();
+  trail=trail.filter(p=>now-p.time<350);
+  // Preview of the thread you are about to make.
+  const from=drag?.target?drag.node:selected, to=drag?.target||(selected&&pointer);
+  if(from&&to)s+=`<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="#fff" stroke-width="1" stroke-dasharray="3 4"/>`;
+  if(trail.length>1)s+=`<polyline points="${trail.map(p=>p.x+","+p.y).join(" ")}" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="3 4"/>`;
+  threads.innerHTML=s;
+}
+
+// ---------- physics ----------
+function step(){
+  const list=[...nodes.values()];
+  for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++){
+    const a=list[i], b=list[j];
+    // Words on the exact same spot have no direction to part in, so nudge them.
+    if(Math.abs(b.x-a.x)<.5&&Math.abs(b.y-a.y)<.5){b.x+=Math.random()*20-10;b.y+=Math.random()*20-10}
+    let dx=b.x-a.x, dy=b.y-a.y; const d2=dx*dx+dy*dy+.01;
+    if(d2>220*220)continue;
+    const f=1800/(d2+100), d=Math.sqrt(d2); dx/=d; dy/=d;
+    a.vx-=dx*f; a.vy-=dy*f; b.vx+=dx*f; b.vy+=dy*f;
+  }
+  for(const e of edges){
+    const [a,b]=e.split("+").map(w=>nodes.get(w));
+    let dx=b.x-a.x, dy=b.y-a.y; const d=Math.hypot(dx,dy)||1; const f=(d-150)*.02;
+    dx/=d; dy/=d; a.vx+=dx*f; a.vy+=dy*f; b.vx-=dx*f; b.vy-=dy*f;
+  }
+  for(const n of list){
+    if(n===drag?.node){n.vx=n.vy=0;continue}
+    n.vx+=(W/2-n.x)*.0004; n.vy+=(H/2-n.y)*.0004;
+    n.vx*=.82; n.vy*=.82; n.x+=n.vx; n.y+=n.vy;
+    if(W>200&&H>200){n.x=clamp(n.x,60,W-60); n.y=clamp(n.y,70,H-90)}
+  }
+  for(const n of list)n.el.style.transform=`translate(${n.x}px,${n.y}px) translate(-50%,-50%)`;
+}
+
+// ---------- sound ----------
+let ac=null, master=null, soundOn=true;
+const PENTA=[0,2,4,7,9,12,14,16,19,21,24];
+function audio(){
+  if(!ac){
+    ac=new (window.AudioContext||window.webkitAudioContext)();
+    master=ac.createGain(); master.gain.value=.5;
+    master.connect(ac.createDynamicsCompressor()).connect(ac.destination);
+  }
+  if(ac.state==="suspended")ac.resume();
+  return ac;
+}
+function tone(word,{when=0,cents=0,traits=WORDS[word]}={}){
+  if(!soundOn)return;
+  const a=audio(), t0=a.currentTime+when, T=traits;
+  const o=a.createOscillator(), f=a.createBiquadFilter(), g=a.createGain();
+  o.type=T.round>.66?"sine":T.round>.3?"triangle":"sawtooth";
+  o.frequency.value=196*Math.pow(2,(PENTA[WORDS[word].note%PENTA.length]+cents/100)/12);
+  f.type="lowpass"; f.frequency.value=600+(1-(T.temp+1)/2)*3000; f.Q.value=.5+(1-T.round)*4;
+  const atk=.005+(1-T.tempo)*.08, rel=.4+(1-T.tempo)*2.2;
+  g.gain.setValueAtTime(0,t0);
+  g.gain.linearRampToValueAtTime(.18*(.5+T.weight*.5),t0+atk);
+  g.gain.exponentialRampToValueAtTime(.0001,t0+atk+rel);
+  o.connect(f).connect(g).connect(master); o.start(t0); o.stop(t0+atk+rel+.05);
+}
+function clusterOf(word){return clusters().find(c=>c.includes(word))||[word]}
+function chord(words,{cents=0}={}){
+  const traits={}; for(const k of TRAITS)traits[k]=average(words,k);
+  const gap=.02+(1-traits.tempo)*.12;
+  words.forEach((w,i)=>tone(w,{when:i*gap,traits,cents}));
+}
+function snip(){
+  if(!soundOn)return;
+  const a=audio(), t0=a.currentTime;
+  const buf=a.createBuffer(1,a.sampleRate*.06,a.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+  const src=a.createBufferSource(), f=a.createBiquadFilter(), g=a.createGain();
+  src.buffer=buf; f.type="highpass"; f.frequency.value=3000; g.gain.value=.25;
+  src.connect(f).connect(g).connect(master); src.start(t0);
+}
+const strangerCents=w=>edges.size&&clusterOf(w).length===1?35:0;
+
+// ---------- interaction ----------
+let drag=null, cut=null, trail=[], selected=null, pointer={x:0,y:0};
+
+function addNode(word,x,y){
+  const el=document.createElement("div");
+  el.className="node tag"; el.textContent=word;
+  const cross=document.createElement("span"); cross.className="x"; cross.textContent="×"; cross.title="Remove";
+  cross.addEventListener("pointerdown",e=>{e.stopPropagation();e.preventDefault();removeWord(word)});
+  el.appendChild(cross);
+  el.addEventListener("pointerdown",e=>startDrag(e,nodes.get(word),false));
+  field.appendChild(el);
+  nodes.set(word,{word,x,y,vx:0,vy:0,el});
+}
+function removeNode(word){
+  nodes.get(word).el.remove(); nodes.delete(word);
+  for(const e of [...edges])if(e.split("+").includes(word))edges.delete(e);
+}
+function removeWord(word){
+  if(selected?.word===word)select(null);
+  removeNode(word); tone(word,{cents:-1200}); sync();
+}
+function renderTray(){
+  tray.innerHTML="";
+  for(const w of Object.keys(WORDS)){
+    if(nodes.has(w))continue;
+    const el=document.createElement("span");
+    el.className="tag"; el.textContent=w;
+    el.addEventListener("pointerdown",e=>{
+      e.preventDefault();
+      addNode(w,e.clientX,e.clientY);
+      startDrag(e,nodes.get(w),true);
+      el.remove();
+    });
+    tray.appendChild(el);
+  }
+}
+function startDrag(e,node,fresh){
+  e.preventDefault(); e.stopPropagation();
+  drag={node,fresh,moved:false,sx:e.clientX,sy:e.clientY,target:null};
+  node.el.classList.add("dragging");
+  if(fresh)tone(node.word,{cents:strangerCents(node.word)});
+}
+function inTray(y){return y>tray.getBoundingClientRect().top-12}
+
+function select(n){
+  selected?.el.classList.remove("selected");
+  selected=n; n?.el.classList.add("selected");
+}
+// Connect two words, or cut them apart if they already are.
+function toggleLink(n,m){
+  const k=edgeKey(n.word,m.word);
+  if(edges.has(k)){edges.delete(k);snip()}else{edges.add(k)}
+  hideHint(); sync();
+  if(edges.has(k))chord(clusterOf(n.word));
+}
+
+addEventListener("pointermove",e=>{
+  pointer={x:e.clientX,y:e.clientY};
+  if(drag){
+    const n=drag.node;
+    if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)>4)drag.moved=true;
+    n.x=e.clientX; n.y=e.clientY;
+    let best=null, bd=48;
+    for(const m of nodes.values()){if(m===n)continue;const d=Math.hypot(m.x-n.x,m.y-n.y);if(d<bd){bd=d;best=m}}
+    if(best!==drag.target){drag.target?.el.classList.remove("target");best?.el.classList.add("target");drag.target=best}
+  }else if(cut){
+    const p={x:e.clientX,y:e.clientY};
+    for(const k of [...edges]){
+      const [a,b]=k.split("+").map(w=>nodes.get(w));
+      if(intersects(cut,p,a,b)){edges.delete(k);snip();hideHint();sync()}
+    }
+    cut=p; trail.push({...p,time:performance.now()});
+  }
+});
+addEventListener("pointerup",e=>{
+  if(drag){
+    const n=drag.node; n.el.classList.remove("dragging");
+    if(drag.target){
+      const m=drag.target; m.el.classList.remove("target");
+      const a=Math.atan2(n.y-m.y,n.x-m.x)||Math.random()*6.283;
+      n.x=m.x+Math.cos(a)*120; n.y=m.y+Math.sin(a)*120;
+      drag=null; select(null); toggleLink(n,m);
+    }else if(!drag.moved&&!drag.fresh){
+      // A click: the first word waits, the second one connects.
+      drag=null;
+      if(selected&&selected!==n){const m=selected;select(null);toggleLink(m,n)}
+      else if(selected===n)select(null);
+      else{select(n);tone(n.word,{cents:strangerCents(n.word)})}
+    }else if(inTray(e.clientY)&&!(drag.fresh&&!drag.moved)){
+      const w=n.word; drag=null; removeWord(w);
+    }else{
+      if(drag.fresh&&!drag.moved){const r=rng(hash(n.word));n.x=W*(.25+r()*.5);n.y=H*(.25+r()*.45)}
+      drag=null; sync();
+    }
+  }
+  cut=null;
+});
+field.addEventListener("pointerdown",e=>{
+  if(e.target!==field)return;
+  select(null);
+  cut={x:e.clientX,y:e.clientY}; trail=[{...cut,time:performance.now()}];
+});
+function intersects(p,q,a,b){
+  const o=(p,q,r)=>Math.sign((q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x));
+  return o(p,q,a)!==o(p,q,b)&&o(a,b,p)!==o(a,b,q);
+}
+function hideHint(){document.getElementById("hint").style.opacity=0}
+
+addEventListener("keydown",e=>{
+  if(selected&&(e.key==="Delete"||e.key==="Backspace"))removeWord(selected.word);
+  if(e.key==="Escape")select(null);
+});
+document.getElementById("sound").onclick=e=>{soundOn=!soundOn;e.currentTarget.classList.toggle("off",!soundOn)};
+document.getElementById("clear").onclick=()=>{select(null);for(const w of [...nodes.keys()])removeNode(w);sync()};
+document.getElementById("save").onclick=savePoster;
+
+// ---------- poster ----------
+function savePoster(){
+  const w=2400, h=3000, c=document.createElement("canvas"); c.width=w; c.height=h;
+  const x=c.getContext("2d");
+  draw(x,w,h,time,true);
+  const dark=bg.l<50, m=w*.02, fs=w*.013, strip=fs*4.6;
+  x.fillStyle=hsl(bg.h,bg.s,bg.l); x.fillRect(0,h-strip,w,strip);
+  x.fillStyle=dark?"rgba(255,255,255,.88)":"rgba(0,0,0,.88)";
+  x.font=`400 ${fs}px "Almost Swiss"`; x.textBaseline="alphabetic";
+  const words=clusters().map(c=>c.join(" — ")).join("  ·  ")||"—";
+  const d=new Date(), date=[d.getDate(),d.getMonth()+1,d.getFullYear()].map(v=>String(v).padStart(2,"0")).join(".");
+  x.fillText(words,m,h-strip+fs*1.8);
+  x.fillText(`No. ${number()}     ${date}     cmbjork.com/lab`,m,h-strip+fs*3.4);
+  if(nodes.size)chord([...nodes.keys()].sort());
+  c.toBlob(b=>{
+    const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=`nodes-${number()}.png`; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  },"image/png");
+}
+
+// ---------- loop ----------
+function resize(){
+  W=innerWidth; H=innerHeight; dpr=Math.min(devicePixelRatio||1,2);
+  art.width=W*dpr; art.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+let time=0, last=performance.now();
+function frame(now){
+  time+=Math.min(now-last,50)/1000; last=now;
+  for(const k of ["h","s","l"])bg[k]=lerp(bg[k],bgTarget[k],.05);
+  for(const [k,L] of layers){L.alpha=lerp(L.alpha,L.dying?0:1,.06);if(L.dying&&L.alpha<.01)layers.delete(k)}
+  step(); draw(ctx,W,H,time); drawThreads();
+  requestAnimationFrame(frame);
+}
+
+// ---------- start ----------
+function load(){
+  const raw=decodeURIComponent(location.hash.slice(1));
+  let [ns,es]=raw?raw.split("|"):["cold,exact,playful","cold+exact"];
+  const words=(ns||"").split(",").filter(w=>WORDS[w]);
+  words.forEach((w,i)=>{const a=i/words.length*Math.PI*2-Math.PI/2;addNode(w,W/2+Math.cos(a)*170,H/2+Math.sin(a)*140)});
+  for(const e of (es||"").split(",")){const [a,b]=e.split("+");if(nodes.has(a)&&nodes.has(b)&&a!==b)edges.add(edgeKey(a,b))}
+  sync();
+}
+addEventListener("resize",resize);
+// A pasted link with another map replaces the current one.
+addEventListener("hashchange",()=>{select(null);for(const w of [...nodes.keys()])removeNode(w);load()});
+resize(); load();
+// Canvas only draws fonts that are loaded, so ask for every family up front.
+Promise.all(Object.keys(FONT_RANGE).flatMap(f=>[100,400,900].map(wt=>document.fonts.load(`${wt} 40px "${f}"`)))).catch(()=>{});
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

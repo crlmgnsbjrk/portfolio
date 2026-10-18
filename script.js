@@ -131,30 +131,66 @@
   }
 
   // Muted autoplay films (video[data-sound]) get a button that turns the sound on and starts over
+  // Films: a small control box at the bottom right. Films marked data-play wait for a click on ▶
+  // (films with sound then start with sound); ♪ turns sound on or off on films that have it.
   function initSoundToggles() {
-    document.querySelectorAll("video[data-sound]").forEach((video) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "sound-toggle";
-      button.textContent = "♪";
-      // Only the note is shown; struck through while muted. The label carries the words.
+    document.querySelectorAll("video[data-sound], video[data-play]").forEach((video) => {
+      const box = document.createElement("div");
+      box.className = "video-controls";
+      if (video.hasAttribute("data-play")) {
+        const play = document.createElement("button");
+        play.type = "button";
+        play.className = "sound-toggle play-toggle";
+        const show = () => {
+          play.textContent = video.paused ? "▶" : "❚❚";
+          play.setAttribute("aria-label", video.paused ? "Play" : "Pause");
+          play.title = play.getAttribute("aria-label");
+        };
+        const toggle = () => {
+          if (video.paused) {
+            if (video.hasAttribute("data-sound")) video.muted = false;
+            video.play();
+          } else {
+            video.pause();
+          }
+        };
+        play.addEventListener("click", toggle);
+        video.addEventListener("click", toggle);
+        video.style.cursor = "pointer";
+        ["play", "pause", "ended", "volumechange"].forEach((ev) => video.addEventListener(ev, () => {
+          show();
+          if (sound) label();
+        }));
+        show();
+        box.appendChild(play);
+      }
+      let sound = null;
       const label = () => {
-        button.classList.toggle("is-muted", video.muted);
-        button.setAttribute("aria-label", video.muted ? "Sound on" : "Sound off");
-        button.title = video.muted ? "Sound on" : "Sound off";
+        sound.classList.toggle("is-muted", video.muted);
+        sound.setAttribute("aria-label", video.muted ? "Sound on" : "Sound off");
+        sound.title = video.muted ? "Sound on" : "Sound off";
       };
-      label();
-      button.addEventListener("click", () => {
-        video.muted = !video.muted;
-        if (!video.muted) {
-          video.currentTime = 0;
-          video.play();
-        }
+      if (video.hasAttribute("data-sound")) {
+        // Only the note is shown; struck through while muted. The label carries the words.
+        sound = document.createElement("button");
+        sound.type = "button";
+        sound.className = "sound-toggle";
+        sound.textContent = "♪";
         label();
-      });
-      video.after(button);
+        sound.addEventListener("click", () => {
+          video.muted = !video.muted;
+          if (!video.muted && !video.hasAttribute("data-play")) {
+            video.currentTime = 0;
+            video.play();
+          }
+          label();
+        });
+        box.prepend(sound);
+      }
+      video.after(box);
     });
   }
+
 
   // Slideshows (.tile-show): data-tiles lists images, either "path/name" (name.avif + name.jpg) or a
   // full fallback file "path/name.jpg|png" (name.avif tried first). Each image loads just before it is
@@ -452,7 +488,6 @@
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
   updateHeaderColor();
-  initPlayButtons();
   initPortrait();
   initStockholmTime();
 
@@ -497,30 +532,6 @@
     overlay.addEventListener("click", close);
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && overlay.classList.contains("is-open")) close();
-    });
-  }
-
-  // Films with sound (native controls): the poster stays visible with a clear play button on top
-  function initPlayButtons() {
-    document.querySelectorAll("video[controls]").forEach((video) => {
-      const wrap = document.createElement("div");
-      wrap.className = "play-wrap " + [...video.classList].filter((c) => c === "full" || c === "half").join(" ");
-      video.parentNode.insertBefore(wrap, video);
-      wrap.appendChild(video);
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "play-button";
-      button.setAttribute("aria-label", "Play " + (video.getAttribute("aria-label") || "film"));
-      button.innerHTML = '<span aria-hidden="true">▶</span>';
-      wrap.appendChild(button);
-      const show = (on) => wrap.classList.toggle("is-playing", !on);
-      button.addEventListener("click", () => video.play());
-      video.addEventListener("play", () => show(false));
-      video.addEventListener("pause", () => show(true));
-      video.addEventListener("ended", () => {
-        video.load();  // back to the poster
-        show(true);
-      });
     });
   }
 
