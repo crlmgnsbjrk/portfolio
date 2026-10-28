@@ -1,3 +1,6 @@
 {
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/labs/quarks", "destination": "https://quarks-chi.vercel.app/" }
+  ]
 }
