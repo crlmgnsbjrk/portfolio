@@ -1120,3 +1120,84 @@ main.project + footer{
   pointer-events: none;
   will-change: transform;
 }
+
+/* Labs: one entry per lab, big name, a few lines on what it is, the lab moving */
+.labs{
+  display: grid;
+  gap: var(--hero-after);
+}
+
+.lab{
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--gap);
+  align-items: start;
+}
+
+.lab-kicker{
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+}
+
+.lab-name{
+  grid-column: 1 / span 5;
+  margin: 0;
+  font-size: clamp(40px, 7vw, 112px);
+  font-weight: 300;
+  line-height: 1;
+}
+
+.lab-name a,
+.lab-open a{
+  color: inherit;
+  text-decoration: none;
+}
+
+.lab-name a:hover{
+  color: var(--link-color);
+}
+
+.lab-text{
+  grid-column: 7 / span 6;
+  margin: 0;
+  max-width: 48ch;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.25;
+  text-wrap: pretty;
+}
+
+.lab-media{
+  grid-column: 1 / -1;
+  display: block;
+}
+
+.lab-media video{
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #111;
+}
+
+.lab-open{
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.lab-open a{
+  color: var(--link-color);
+}
+
+.lab-open a:hover{
+  text-decoration: underline;
+}
+
+@media (max-width: 800px){
+  .lab-name,
+  .lab-text{
+    grid-column: 1 / -1;
+  }
+}
