@@ -3,6 +3,7 @@
   "rewrites": [
     { "source": "/labs/quarks", "destination": "https://quarks-chi.vercel.app/" },
     { "source": "/labs/u-plus", "destination": "https://u-plus-nu.vercel.app/" },
-    { "source": "/labs/delta-e", "destination": "https://delta-e.vercel.app/" }
+    { "source": "/labs/delta-e", "destination": "https://delta-e.vercel.app/" },
+    { "source": "/labs/ductus", "destination": "https://ductus-drab.vercel.app/" }
   ]
 }
