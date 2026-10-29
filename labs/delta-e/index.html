@@ -1,0 +1,1081 @@
+<!doctype html>
+<html lang="en" data-theme="black">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="ΔE Grade Lab: colour grading presets from directors, series, films, photographers and film stocks, turned into image-edit prompts for Nano Banana, GPT Image and FLUX.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23000'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='%23fff' font-family='Times New Roman,Times,serif'%3E%CE%94E%3C/text%3E%3C/svg%3E">
+<title>ΔE Grade Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Three columns: presets | stage | prompt. */
+:root{
+  --col-l:280px;
+  --col-r:400px;
+  --gut:20px;
+  --f-ui:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --f-times:"Times New Roman",Times,serif;
+}
+:root,:root[data-theme="black"]{
+  color-scheme:dark;
+  --ground:#000;--panel:rgba(0,0,0,.94);--stage:#0b0b0b;
+  --ink:#fff;--dim:#8a8a8a;--faint:#4a4a4a;
+  --line:rgba(255,255,255,.18);--hover:rgba(255,255,255,.08);--tint:rgba(255,255,255,.16);
+}
+:root[data-theme="white"]{
+  color-scheme:light;
+  --ground:#fff;--panel:rgba(255,255,255,.94);--stage:#f2f2f2;
+  --ink:#000;--dim:#6e6e6e;--faint:#b4b4b4;
+  --line:rgba(0,0,0,.16);--hover:rgba(0,0,0,.05);--tint:rgba(0,0,0,.1);
+}
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;background:var(--ground);color:var(--ink);font:13px/1.5 var(--f-ui);-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:1px solid var(--ink);outline-offset:-1px}
+[hidden]{display:none!important}
+.label{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+
+/* Header */
+header{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:var(--col-l) minmax(0,1fr) var(--col-r);align-items:center;height:64px;background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header>*{padding:0 var(--gut)}
+.logo{display:flex;justify-content:space-between;align-items:last baseline;gap:10px;white-space:nowrap}
+.logo b{font:400 30px/1 var(--f-times);letter-spacing:-.01em}
+.logo span{line-height:1.3;text-align:right}
+.search{position:relative}
+.search input{width:100%;height:36px;padding:0 36px 0 0;background:none;border:0;border-bottom:1px solid var(--line);outline:none;font-size:14px}
+.search input:focus{border-bottom-color:var(--ink)}
+.search input::placeholder{color:var(--dim)}
+.search input::-webkit-search-cancel-button{display:none}
+.search kbd{position:absolute;right:var(--gut);top:9px;font-size:10px;color:var(--dim);border:1px solid var(--line);padding:0 5px;line-height:16px;pointer-events:none}
+.ctrl{display:flex;justify-content:flex-end;align-items:center;gap:16px}
+.themes{display:flex;gap:8px}
+.themes button{width:14px;height:14px;border:1px solid var(--dim)}
+.themes [data-theme="black"]{background:#000}
+.themes [data-theme="white"]{background:#fff}
+.themes [aria-pressed="true"]{outline:1px solid var(--ink);outline-offset:2px}
+
+/* Layout */
+.wrap{display:grid;grid-template-columns:var(--col-l) minmax(0,1fr) var(--col-r);height:calc(100vh - 64px);height:calc(100dvh - 64px)}
+.wrap>*{min-height:0;overflow:auto}
+#presets{border-right:1px solid var(--line);padding-bottom:40px}
+#prompt{border-left:1px solid var(--line)}
+
+/* Preset list */
+.cat{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;padding:14px var(--gut) 8px;background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.pre{display:grid;grid-template-columns:60px minmax(0,1fr);gap:12px;align-items:center;width:100%;padding:6px var(--gut);text-align:left}
+.pre:hover{background:var(--hover)}
+.pre[aria-current="true"]{background:var(--tint)}
+.pre canvas{display:block;width:60px;height:40px;background:var(--stage)}
+.pre b{display:block;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pre small{display:block;font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{padding:20px var(--gut);color:var(--dim)}
+
+/* Stage */
+#center{display:flex;flex-direction:column;background:var(--stage)}
+.stage{position:relative;flex:1;min-height:280px;display:flex;align-items:center;justify-content:center;padding:var(--gut);overflow:hidden}
+.frame{position:relative;max-width:100%;max-height:100%;line-height:0;touch-action:none;cursor:ew-resize;user-select:none;-webkit-user-select:none}
+.frame canvas{display:block;max-width:100%;max-height:calc(100vh - 64px - 190px);max-height:calc(100dvh - 64px - 190px)}
+#orig{position:absolute;inset:0;width:100%;height:100%}
+.split{position:absolute;top:0;bottom:0;width:1px;background:#fff;box-shadow:0 0 0 .5px rgba(0,0,0,.4);pointer-events:none}
+.split::after{content:"";position:absolute;top:50%;left:-6px;width:13px;height:13px;margin-top:-6px;background:linear-gradient(90deg,#fff 50%,#777 50%);box-shadow:0 0 0 .5px rgba(0,0,0,.4)}
+.tag{position:absolute;top:10px;line-height:1;padding:5px 6px;background:rgba(0,0,0,.55);color:#fff}
+.tag.l{left:10px}.tag.r{right:10px}
+.status{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--dim)}
+.drop{position:absolute;inset:var(--gut);border:1px dashed var(--ink);display:flex;align-items:center;justify-content:center;background:var(--panel);z-index:5;pointer-events:none}
+
+.strip{border-top:1px solid var(--line);background:var(--ground);padding:12px var(--gut) 14px}
+.strip .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px}
+.credit{font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.credit a{color:inherit}
+.thumbs{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.thumb{position:relative;text-align:left}
+.thumb .img{display:block;width:100%;aspect-ratio:3/2;background:var(--stage) center/cover no-repeat;border:1px solid transparent}
+.thumb[aria-pressed="true"] .img{border-color:var(--ink)}
+.thumb span{display:block;margin-top:4px;font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thumb[aria-pressed="true"] span{color:var(--ink)}
+.thumb.add .img{display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);font-size:20px;color:var(--dim)}
+.thumb.add:hover .img{border-color:var(--ink);color:var(--ink)}
+
+/* Prompt column */
+.sec{padding:16px var(--gut);border-bottom:1px solid var(--line)}
+.title{font:400 34px/1.05 var(--f-times);letter-spacing:-.01em;margin:6px 0 6px}
+.ref{color:var(--dim);margin:0}
+.sw{display:flex;margin:14px 0 10px;height:14px}
+.sw i{flex:1}
+.look{margin:0}
+.key{margin:12px 0 0;font:italic 400 17px/1.3 var(--f-times)}
+.src{margin:8px 0 0;font-size:11px;color:var(--dim)}
+.src a{color:inherit}
+.models{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.models button{padding:14px 0 12px;text-align:center;border-bottom:1px solid transparent;margin-bottom:-1px;color:var(--dim)}
+.models button small{display:block;font-size:10px;color:var(--faint)}
+.models [aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.models [aria-pressed="true"] small{color:var(--dim)}
+.out{position:relative}
+#text{display:block;width:100%;min-height:300px;padding:16px var(--gut);background:none;border:0;outline:none;resize:vertical;font-size:12px;line-height:1.6;color:var(--ink)}
+.acts{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:0 var(--gut) 16px}
+.btn{height:36px;padding:0 16px;border:1px solid var(--line)}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.count{font-size:11px;color:var(--dim)}
+.hint{font-size:11px;color:var(--dim);margin:10px 0 0}
+
+.ctl{display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;gap:12px;margin:10px 0}
+.seg{display:flex;gap:14px;flex-wrap:wrap}
+.seg button{color:var(--dim);border-bottom:1px solid transparent;padding:2px 0}
+.seg [aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:none;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:var(--line)}
+input[type=range]::-moz-range-track{height:1px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;margin-top:-5px;background:var(--ink);border:0}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;background:var(--ink);border:0;border-radius:0}
+.val{display:flex;justify-content:space-between;gap:10px}
+.val output{color:var(--dim);min-width:56px;text-align:right}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;padding:8px 14px;background:var(--ink);color:var(--ground);transition:.2s;pointer-events:none;z-index:50}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* Narrow screens: stack stage, presets, prompt. */
+@media (max-width:1100px){
+  :root{--col-l:240px;--col-r:340px}
+}
+@media (max-width:860px){
+  :root{--gut:16px}
+  header{grid-template-columns:auto minmax(0,1fr) auto;gap:0}
+  .logo span{display:none}
+  .wrap{display:block;height:auto}
+  .wrap>*{overflow:visible}
+  #center{order:-1}
+  #presets{border:0;border-top:1px solid var(--line);max-height:46vh;overflow:auto}
+  #prompt{border:0;border-top:1px solid var(--line)}
+  .frame canvas{max-height:60vh}
+  .stage{min-height:0}
+  .thumbs{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .mobile-order{display:flex;flex-direction:column}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><b>ΔE</b><span class="label">Grade<br>Lab</span></div>
+  <div class="search">
+    <input id="q" type="search" placeholder="Search — Fincher, neon, Portra, green" autocomplete="off" spellcheck="false" aria-label="Search presets">
+    <kbd>/</kbd>
+  </div>
+  <div class="ctrl">
+    <div class="themes" role="group" aria-label="Theme">
+      <button data-theme="black" aria-pressed="true" title="Black" aria-label="Black"></button>
+      <button data-theme="white" aria-pressed="false" title="White" aria-label="White"></button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap mobile-order">
+  <nav id="presets" aria-label="Presets"></nav>
+
+  <main id="center">
+    <div class="stage" id="stage">
+      <div class="frame" id="frame">
+        <canvas id="out" aria-label="Graded preview"></canvas>
+        <canvas id="orig" aria-hidden="true"></canvas>
+        <div class="split" id="split"></div>
+        <span class="tag l label">Before</span>
+        <span class="tag r label">After</span>
+      </div>
+      <div class="status" id="status">Loading image…</div>
+      <div class="drop" id="drop" hidden><span class="label">Drop image</span></div>
+    </div>
+    <div class="strip">
+      <div class="row">
+        <span class="label">Test images</span>
+        <span class="credit" id="credit"></span>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+      <input type="file" id="file" accept="image/*" hidden>
+    </div>
+  </main>
+
+  <aside id="prompt">
+    <div class="sec">
+      <div class="label" id="pcat">Preset</div>
+      <h1 class="title" id="pname">—</h1>
+      <p class="ref" id="pref"></p>
+      <div class="sw" id="psw"></div>
+      <p class="look" id="plook"></p>
+      <p class="key" id="pkey" hidden></p>
+      <p class="src" id="psrc" hidden></p>
+    </div>
+
+    <div class="models" role="group" aria-label="Model" id="models"></div>
+    <div class="out">
+      <textarea id="text" spellcheck="false" aria-label="Prompt"></textarea>
+    </div>
+    <div class="acts">
+      <span class="count" id="count"></span>
+      <button class="btn primary" id="copy">Copy prompt</button>
+    </div>
+
+    <div class="sec" style="border-top:1px solid var(--line)">
+      <div class="label">Shot</div>
+      <div class="ctl"><span>Strength</span>
+        <div class="val"><input type="range" id="k" min="20" max="100" step="5" value="80" aria-label="Strength"><output id="kout"></output></div>
+      </div>
+      <div class="ctl"><span>Person</span>
+        <div class="seg" data-key="person"><button data-v="1">Yes</button><button data-v="0">No</button></div>
+      </div>
+      <div class="ctl"><span>Place</span>
+        <div class="seg" data-key="where"><button data-v="in">Inside</button><button data-v="out">Outside</button></div>
+      </div>
+      <div class="ctl"><span>Time</span>
+        <div class="seg" data-key="time"><button data-v="day">Day</button><button data-v="night">Night</button></div>
+      </div>
+      <div class="ctl"><span>Light</span>
+        <div class="seg" data-key="atmo"><button data-v="0">Keep</button><button data-v="1">Shape</button></div>
+      </div>
+      <p class="hint">The preview is a rough sketch of the grade, done in the browser. The prompt carries the real look.<br>Keys: <b>↑ ↓</b> preset, <b>← →</b> image, <b>Space</b> before, <b>C</b> copy.</p>
+    </div>
+  </aside>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+// ---------- Test images (Unsplash, hotlinked with credit) ----------
+const IMAGES = [
+  {id:'window', label:'Window', src:'photo-1630754157861-e4ffc56bc000', by:'Joonas Sild', u:'joonas1233', scene:{person:'1',where:'in',time:'day'}},
+  {id:'park',   label:'Park',   src:'photo-1767396857504-99375ab21c1a', by:'Fotografía Editorial', u:'fotografiaeditorial', scene:{person:'1',where:'out',time:'day'}},
+  {id:'diner',  label:'Diner',  src:'photo-1784075292370-86c2e07dac41', by:'bahareh moradian', u:'bahar_mr', scene:{person:'1',where:'in',time:'day'}},
+  {id:'alley',  label:'Alley',  src:'photo-1534214526114-0ea4d47b04f2', by:'Alex Knight', u:'agk42', scene:{person:'0',where:'out',time:'night'}},
+  {id:'snow',   label:'Snow',   src:'photo-1520084848344-f4c32b3f7b51', by:'Madara Parma', u:'madaratravels', scene:{person:'0',where:'out',time:'day'}},
+  {id:'desert', label:'Desert', src:'photo-1553152531-b98a2fc8d3bf', by:'Johannes Plenio', u:'jplenio', scene:{person:'0',where:'out',time:'day'}},
+];
+const imgUrl = (src, w) => `https://images.unsplash.com/${src}?w=${w}&q=80&auto=format&fit=max`;
+
+// ---------- Models ----------
+const MODELS = [
+  {id:'nano', name:'Nano Banana', by:'Google Gemini'},
+  {id:'gpt',  name:'GPT Image',   by:'OpenAI'},
+  {id:'flux', name:'FLUX.2',      by:'Black Forest Labs'},
+];
+
+// ---------- Presets ----------
+// as: how the prompt names the reference. p: preview sketch —
+// t temp, g tint (+magenta), s sat, c contrast, l lift, w white, sh/hi split-tone RGB, gr grain, v vignette.
+const CATS = {dir:'Directors', tv:'Series', film:'Films', photo:'Photographers', stock:'Film stocks'};
+const PRESETS = [
+// Directors
+{id:'anderson',cat:'dir',name:'Wes Anderson',ref:'The Grand Budapest Hotel · Moonrise Kingdom — DP Robert Yeoman, colourist Jill Bogdanowicz',as:"the colour grading of Wes Anderson's The Grand Budapest Hotel (colourist Jill Bogdanowicz)",
+ look:'storybook pastel, every surface evenly lit and candy-coloured',
+ pal:'pastel pink, deep red, powder blue, mustard yellow and warm cream',
+ tone:'low-to-medium contrast with flat, even exposure; blacks soft and slightly lifted into warm brown; highlights creamy and never clipped',
+ skin:'warm peach and slightly rosy',tex:'clean 35mm film with very fine grain and a hint of the hand-tinted Photochrom postcard',
+ avoid:'teal-and-orange, desaturation, harsh contrast, cold blue shadows',
+ key:'A colour world can be an entire period of time.',src:['Lowepost','https://lowepost.com/color-grading/case-studies/grand-budapest-hotel-r19/'],
+ sw:['#E8A6A1','#9E2A2B','#A7C7C2','#F2C14E','#F3E3C3'],p:{t:.25,g:.1,s:1.15,c:-.1,l:.06,w:.97,sh:[.03,.01,-.01],hi:[.02,.01,-.02],gr:.02,v:.05}},
+{id:'wkw',cat:'dir',name:'Wong Kar-wai',ref:'In the Mood for Love — DPs Christopher Doyle, Mark Lee Ping-bin',as:"the colour of Wong Kar-wai's In the Mood for Love, shot by Christopher Doyle and Mark Lee Ping-bin",
+ look:'intimate longing — deep crimson against emerald, warm bulbs, golden skin and dense shadows',
+ pal:'deep crimson, emerald green, warm tungsten amber and dense brown-black',
+ tone:'full, rich midtones; deep dark areas; a warm quality of light; selectively rich reds and greens; very few neutral surfaces',
+ skin:'golden and warm',tex:'35mm grain, a touch of softness and a gentle bloom on bulbs',
+ avoid:'a clean digital look, pastels, teal-and-orange, painting new colours onto objects — enrich the reds and greens already in the scene',
+ key:'Colour is strongest when it lives in the world itself, not only in the grade.',src:['The Criterion Collection','https://www.criterion.com/films/198-in-the-mood-for-love'],
+ sw:['#1B1710','#522525','#8E372D','#285240','#D99B61'],p:{t:.2,g:-.15,s:1.3,c:.3,l:0,w:1,sh:[-.01,.02,0],hi:[.05,.02,-.04],gr:.06,v:.3}},
+{id:'fincher',cat:'dir',name:'David Fincher',ref:'Se7en · Zodiac · Gone Girl — DPs Darius Khondji, Jeff Cronenweth',as:"the colour of David Fincher's Se7en, shot by Darius Khondji with silver-retention (Deluxe CCE) prints",
+ look:'damp, decaying and closed-in — dirty olive, brown and grey with very sparse colour',
+ pal:'dirty olive green, brown, grey and deep black',
+ tone:'harder contrast with dense, designed blacks (silver retention, close to bleach bypass); shadows neutral or slightly warm-green and still holding subtle detail; low saturation',
+ skin:'desaturated and slightly sallow',tex:'dense film texture, no glossy digital sheen',
+ avoid:'warm cosy tones, vivid colour, crushing shadows into empty black, clean pure whites',
+ key:'Black works best when it is designed, not just pulled down.',src:['American Cinematographer','https://theasc.com/article/book-excerpt-conversations-with-darius-khondji/'],
+ sw:['#0E1210','#232922','#514E3B','#837761','#C8B79D'],p:{t:.05,g:-.2,s:.5,c:.35,l:.01,w:.93,sh:[0,.015,0],hi:[.02,.02,-.02],gr:.02,v:.25}},
+{id:'villeneuve',cat:'dir',name:'Denis Villeneuve',ref:"Dune · Sicario · Arrival — DPs Greig Fraser, Roger Deakins, Bradford Young",as:"the colour grading of Denis Villeneuve's films (Dune, Sicario, Arrival)",
+ look:'monumental and muted — near-monochrome earth tones under heavy air',
+ pal:'sand beige, ash grey, muted ochre and slate blue',
+ tone:"soft, low contrast with milky lifted blacks; depth built from the colour of the light itself rather than from saturation; forms read as silhouettes against hazy, bright ground",
+ skin:'muted and natural, a little desaturated',tex:'smooth large-format digital with a faint film texture',
+ avoid:'saturated colour, punchy contrast, warm glow',
+ key:"Grade the light, not just the image.",src:["American Cinematographer","https://theasc.com/article/dune-fear-is-the-mind-killer/"],
+ sw:['#C9B79A','#8A8478','#A6865A','#5B6670','#2E2B27'],p:{t:.1,g:0,s:.55,c:.05,l:.05,w:.94,sh:[0,0,.01],hi:[.02,.01,-.01],gr:.01,v:.1}},
+{id:'mann',cat:'dir',name:'Michael Mann',ref:"Collateral · Miami Vice — DPs Dion Beebe, Paul Cameron",as:"the colour grading of Michael Mann's digital night films (Collateral, Miami Vice)",
+ look:"glowing digital night — the city itself lit as a character, in cyan and sodium orange",
+ pal:'electric cyan and teal, sodium orange, steel blue and noisy black',
+ tone:"medium contrast; shadows open and noisy rather than crushed, as if shot on early HD by available city light; sky glows cyan-grey",
+ skin:'warm against the cool surroundings',tex:'visible digital video noise in the shadows, no film grain',
+ avoid:'film grain, a warm overall cast, crushed shadows',
+ key:"Let the city’s own light become a character.",src:["American Cinematographer","https://theasc.com/article/hell-on-wheels-collateral/"],
+ sw:['#1E8C9E','#E08A2E','#3A5068','#0E1418','#9FD3DA'],p:{t:-.35,g:-.1,s:1.05,c:.15,l:.03,w:1,sh:[-.02,.02,.05],hi:[.04,.01,-.02],gr:.06,v:.15}},
+{id:'refn',cat:'dir',name:'Nicolas Winding Refn',ref:'Drive — DP Newton Thomas Sigel',as:"the night colour of Nicolas Winding Refn's Drive, shot by Newton Thomas Sigel",
+ look:'restrained neon night — large dark, fairly neutral areas with a few intense colour sources',
+ pal:'electric blue, cyan, neon pink, sodium orange and near-black night',
+ tone:'mostly dark and fairly neutral; high contrast; only a few concentrated light sources — signs, cars, streets, fluorescents — carry strong cyan, blue, magenta or orange',
+ skin:'neutral, picking up colour only from nearby sources',tex:'clean, glossy, minimal grain',
+ avoid:'spreading neon colour over the whole image, an overall magenta wash, muddy shadows',
+ key:'A few coloured lights do more than a fully coloured frame.',src:['American Cinematographer','https://theasc.com/article/drive-road-warriors/'],
+ sw:['#0A1725','#0D4A67','#00A0BD','#D34C7D','#D8833B'],p:{t:-.15,g:.05,s:1.05,c:.35,l:0,w:1,sh:[-.01,0,.03],hi:[.03,0,.02],gr:.01,v:.3}},
+{id:'coppola',cat:'dir',name:'Sofia Coppola',ref:"Lost in Translation · The Virgin Suicides — DPs Lance Acord, Ed Lachman",as:"the colour grading of Sofia Coppola's films (Lost in Translation, The Virgin Suicides)",
+ look:'dreamy and faded — soft pink and cream, slightly overexposed',
+ pal:'blush pink, warm cream, pale peach and washed-out sky blue',
+ tone:"low contrast; blacks lifted and milky; soft, diffused glow from available practicals — neon, street lamps, hotel lights; highlights airy",
+ skin:'soft, glowing, gently pink',tex:'fine film grain and a soft, hazy diffusion',
+ avoid:'deep blacks, saturated primaries, a crisp digital look',
+ key:"Bright colour outside, soft quiet shadow inside.",
+ sw:['#F2C6C2','#F4E6D2','#F0CBA8','#BFD3E0','#8C7A78'],p:{t:.15,g:.15,s:.85,c:-.2,l:.08,w:.98,sh:[.03,.01,.02],hi:[.02,0,0],gr:.04,v:.05}},
+{id:'malick',cat:'dir',name:'Terrence Malick',ref:'Days of Heaven · The Tree of Life — DPs Néstor Almendros, Emmanuel Lubezki',as:"the colour grading of Terrence Malick's films (Days of Heaven, The Tree of Life)",
+ look:"magic hour — the brief soft light just after sunset, natural, backlit and golden",
+ pal:'warm gold, honey, wheat, soft sky blue and natural green',
+ tone:"gentle contrast with open shadows; warm, low-angle backlight that wraps around edges; no hard key light",
+ skin:'natural and sun-warmed',tex:'fine film grain, natural softness',
+ avoid:'artificial colour, heavy grading, cold tones',
+ key:"The best light lasts twenty minutes a day.",src:["Film Comment","https://filmcomment.com/article/interview-nestor-almendros"],
+ sw:['#E8B860','#D9A35A','#E7D3A0','#9DB8CC','#6F7F4A'],p:{t:.3,g:0,s:1.05,c:.05,l:.03,w:1,sh:[0,0,.02],hi:[.05,.03,-.02],gr:.03,v:.1}},
+{id:'jeunet',cat:'dir',name:'Jean-Pierre Jeunet',ref:'Amélie — DP Bruno Delbonnel',as:"the colour grading of Jean-Pierre Jeunet's Amélie, shot by Bruno Delbonnel",
+ look:'fairy-tale Paris — warm, nostalgic and playful, with the blues taken out',
+ pal:'honey yellow, green, deep red and almost no blue',
+ tone:'yellows and greens boosted, blues pulled right back, red objects kept distinct; contrast held but never hard or clinical',
+ skin:'soft amber warmth',tex:'fine 35mm grain',
+ avoid:'blue and cyan, desaturation, a cold clinical look',
+ key:'A tight palette can build a whole world with its own logic.',
+ sw:['#1F3928','#55733C','#BD982F','#D4B05B','#9E302A'],p:{t:.3,g:-.2,s:1.35,c:.2,l:0,w:1,sh:[-.01,.03,-.03],hi:[.05,.04,-.05],gr:.03,v:.3}},
+{id:'godard',cat:'dir',name:'Jean-Luc Godard',ref:'Pierrot le Fou · Contempt — DP Raoul Coutard',as:"the colour of Jean-Luc Godard's 1960s films (Pierrot le Fou, Contempt), shot by Raoul Coutard",
+ look:'pop primaries under bright Mediterranean light',
+ pal:'primary red, ultramarine blue, sunny yellow and clean white',
+ tone:"medium contrast; clean blacks; bright, hot whites; blocks of primary colour that almost collide; sun from the side, burning the colours",
+ skin:'natural, sunlit',tex:'1960s Eastmancolor grain',
+ avoid:'teal-and-orange, muddy tones, heavy vignetting',
+ key:"Let primary colours collide.",src:["Film Comment","https://www.filmcomment.com/an-interview-with-new-wave-cinematographer-raoul-coutard/"],
+ sw:['#C8202A','#1F3FA0','#F2C230','#F4F1EA','#1A1A1A'],p:{t:.05,g:0,s:1.35,c:.15,l:.02,w:1,sh:[0,0,.02],hi:[.02,.02,0],gr:.04,v:.05}},
+{id:'bergman',cat:'dir',name:'Ingmar Bergman',ref:'Persona · Winter Light — DP Sven Nykvist',as:"the black-and-white cinematography of Ingmar Bergman's Persona and Winter Light, shot by Sven Nykvist",
+ look:"black and white in a shadowless north light — silver greys, quiet and intimate",
+ pal:'silver, pewter and soft grey',
+ tone:"gentle contrast; soft, motivated, almost shadowless light; a wide range of mid-greys; blacks soft, whites luminous but never harsh",
+ skin:'luminous mid-grey with soft modelling',tex:'fine 35mm black-and-white grain',
+ avoid:'any colour, harsh contrast, crushed blacks',
+ key:"Study the light for a whole day before you shape it.",src:["American Cinematographer","https://theasc.com/article/life-and-legacy-of-sven-nykvist/"],
+ sw:['#E6E6E6','#B4B4B4','#808080','#4A4A4A','#141414'],p:{t:0,g:0,s:0,c:.08,l:.03,w:.97,sh:[0,0,0],hi:[0,0,0],gr:.04,v:.15}},
+{id:'andersson',cat:'dir',name:'Roy Andersson',ref:"Songs from the Second Floor · A Pigeon Sat on a Branch… — DPs István Borbás, Jesper Klevenås",as:"the look of Roy Andersson's films (Songs from the Second Floor, A Pigeon Sat on a Branch Reflecting on Existence)",
+ look:"a light without mercy — pale, flat and deadpan, with no shadows to hide in",
+ pal:"pale yellow, off-white, putty grey-green and pallid skin",
+ tone:"low contrast; bright, even light from windows and ceiling lamps; almost no shadows; nothing romantic or flattering",
+ skin:'pale and pallid, almost powdered',tex:'clean, still, no visible grain',
+ avoid:'saturation, warmth, drama, deep shadows',
+ key:"No shadows for the characters to hide in.",src:["The Brooklyn Rail","https://brooklynrail.org/2009/11/film/no-shadows-to-hide-in/"],
+ sw:["#E3D9A8","#F2EFE4","#A9B2A0","#D9C9B4","#7D8478"],p:{t:.02,g:-.1,s:.6,c:-.2,l:.07,w:.98,sh:[0,.02,.01],hi:[.01,.01,-.01],gr:.01,v:0}},
+{id:'nolan',cat:'dir',name:'Christopher Nolan',ref:'Interstellar · Dunkirk · Oppenheimer — DP Hoyte van Hoytema',as:"the colour grading of Christopher Nolan's films (Interstellar, Dunkirk, Oppenheimer) shot on large-format film by Hoyte van Hoytema",
+ look:'naturalistic large-format film — neutral to cool, weighty and real',
+ pal:'natural colour, slightly cool: slate blue, neutral grey, muted earth',
+ tone:"medium contrast with rich, deep blacks; highlights roll off smoothly like large-format film; faces carry the image",
+ skin:'natural and true',tex:'fine large-format film grain, high detail',
+ avoid:'stylised colour casts, heavy teal-and-orange, digital harshness',
+ key:"Let the format carry the weight; let faces carry the story.",src:["Kodak","https://kodak.com/en/motion/blog-post/oppenheimer"],
+ sw:['#5E6E7E','#8C9096','#7A6E5E','#2A2E33','#C9CCCC'],p:{t:-.05,g:0,s:.9,c:.15,l:0,w:1,sh:[0,.01,.02],hi:[.01,.01,0],gr:.03,v:.1}},
+{id:'tscott',cat:'dir',name:'Tony Scott',ref:'Man on Fire · Domino',as:"the colour grading of Tony Scott's Man on Fire and Domino",
+ look:"reversal film cross-processed — blown-out, overheated yellow-green, harsh and saturated",
+ pal:'acid yellow, sickly green, burnt orange and hard cyan',
+ tone:"very high contrast; crushed blacks; highlights that don’t just clip but glow",
+ skin:'hot, over-saturated and yellowed',tex:'coarse grain and a cross-processed, slightly gritty edge',
+ avoid:'subtlety, soft pastels, clean neutral colour',
+ key:"Highlights shouldn’t just clip — they should glow.",
+ sw:['#D9D23A','#7FA33A','#D6702A','#1E8C8C','#0E0E0A'],p:{t:.2,g:-.3,s:1.4,c:.45,l:0,w:1,sh:[-.02,.03,.03],hi:[.06,.05,-.05],gr:.07,v:.2}},
+{id:'jenkins',cat:'dir',name:'Barry Jenkins',ref:"Moonlight — DP James Laxton, colourist Alex Bickel",as:"the colour grading of Barry Jenkins's Moonlight, shot by James Laxton",
+ look:'lush and luminous — cyan and magenta light on rich, glowing skin',
+ pal:'saturated cyan and teal, magenta, warm amber and deep indigo',
+ tone:"medium contrast with added saturation; deep indigo shadows; highlights with a blue-violet sheen; the grade built around skin texture, like a film-stock emulation",
+ skin:"rich and luminous, warm and never harsh, with blue and violet highlights on dark skin",tex:'fine 35mm-like grain',
+ avoid:'desaturation, a dull look, flattening dark skin tones',
+ key:"Build the grade around skin.",src:["Post Magazine","https://www.postmagazine.com/Publications/Post-Magazine/2017/March-1-2017/Coloring-Best-Picture-winner-i-Moonlight-i-.aspx"],
+ sw:['#1FA3A8','#B23A8A','#D99A55','#24204A','#5FD0D6'],p:{t:-.1,g:.15,s:1.25,c:.15,l:.02,w:1,sh:[0,.02,.05],hi:[.03,0,.02],gr:.03,v:.15}},
+{id:'park',cat:'dir',name:'Park Chan-wook',ref:'Oldboy — DP Chung Chung-hoon',as:"the colour grading of Park Chan-wook's Oldboy, shot by Chung Chung-hoon",
+ look:"green as decay — sickly fluorescent teal-green under institutional light, with hard contrast",
+ pal:'fluorescent green, teal, sickly yellow and blood red',
+ tone:'high contrast; deep green-black shadows; dirty green-yellow highlights',
+ skin:'greenish and unwell',tex:'gritty 35mm grain',
+ avoid:'warm golden tones, soft pastels, clean whites',
+ key:"Green as the colour of decay and confinement.",
+ sw:['#3E7A52','#2E6F6A','#B8B24A','#8A1A1A','#0A140F'],p:{t:-.05,g:-.35,s:.9,c:.3,l:0,w:.97,sh:[-.02,.04,.02],hi:[.02,.03,-.01],gr:.04,v:.3}},
+{id:'jonze',cat:'dir',name:'Spike Jonze',ref:'Her — DP Hoyte van Hoytema',as:"the colour grading of Spike Jonze's Her, shot by Hoyte van Hoytema",
+ look:"warm and tender — coral, red and soft pastels with blue taken out of the world",
+ pal:'coral, warm red, soft peach, butter yellow and cream',
+ tone:'low contrast; hazy lifted blacks; warm soft highlights',
+ skin:'warm, soft and peachy',tex:'soft and slightly diffused, fine grain',
+ avoid:'blue, cold tones, hard contrast',
+ key:"Remove one colour and the whole world changes temperature.",src:["The Take","https://the-take.com/read/in-her-whats-the-significance-of-the-color-red"],
+ sw:['#E2725B','#C2362E','#F3B79A','#F1D27A','#F4E7D7'],p:{t:.3,g:.15,s:1.0,c:-.1,l:.05,w:.98,sh:[.03,0,-.02],hi:[.03,.01,0],gr:.02,v:.05}},
+
+// Series
+{id:'bbmexico',cat:'tv',name:'Breaking Bad · Mexico',ref:"Breaking Bad — DP Michael Slovis, colourist Tom Sartori",as:"the infamous yellow 'Mexico' colour grade from Breaking Bad",
+ look:'sun-bleached and scorched — heavy tobacco-yellow sepia',
+ pal:'tobacco yellow, dusty amber, sepia brown and bleached sky',
+ tone:"high contrast; hard sun; a tobacco filter over everything; warm brown shadows; hot yellow highlights",
+ skin:'tanned, sweaty, yellowed',tex:'light film grain',
+ avoid:'blue, cool tones, any lush green',
+ key:"Colour that tells you where you are — even when it isn’t true.",src:["Post Magazine","https://www.postmagazine.com/Publications/Post-Magazine/2013/August-1-2013/Breaking-Bad-FotoKem-colorist-Tom-Sartori-reflec.aspx"],
+ sw:['#D9B44A','#C98E3A','#7A5A2E','#E8D9A8','#2E2416'],p:{t:.55,g:-.1,s:.9,c:.3,l:.02,w:1,sh:[.02,.01,-.03],hi:[.06,.04,-.07],gr:.04,v:.2}},
+{id:'mrrobot',cat:'tv',name:'Mr. Robot',ref:'Mr. Robot — DP Tod Campbell',as:"the colour grading of the series Mr. Robot",
+ look:'cold, alienated and corporate — desaturated cyan-green',
+ pal:'cold cyan, grey-green, steel and faded black',
+ tone:"medium-high contrast; cool cyan-green shadows; flat greenish highlights; harsh practical light in otherwise empty space",
+ skin:'pale and cool',tex:'clean digital with light noise',
+ avoid:'warmth, saturated colour, golden light',
+ key:"Isolation lives in empty, cold space.",src:["Motion Picture Association","https://www.motionpictures.org/2017/04/mr-robots-cinematographer-season-threes-wild-ride/"],
+ sw:['#5E8C8C','#7A8C7A','#9AA3A6','#1E2628','#C9D1CF'],p:{t:-.3,g:-.15,s:.6,c:.2,l:.02,w:.95,sh:[-.01,.02,.04],hi:[0,.02,.01],gr:.02,v:.25}},
+{id:'truedetective',cat:'tv',name:'True Detective',ref:'Season 1 — DP Adam Arkapaw',as:"the colour grading of True Detective season 1, shot by Adam Arkapaw",
+ look:'humid Louisiana — muted yellow-green, heavy air, southern gothic',
+ pal:'swamp green, sickly yellow, faded olive and bruised grey',
+ tone:"medium contrast; murky green shadows; hazy yellow highlights; real and organic, never polished",
+ skin:'sweaty and slightly yellowed',tex:"35mm film grain",
+ avoid:'clean blues, saturated colour, crisp whites',
+ key:"Make the place a character.",src:["Lowepost","https://lowepost.com/casestudies/true-detective-r21/"],
+ sw:['#7E8A4A','#C2B45E','#5A5E3A','#8E8C80','#1E2016'],p:{t:.2,g:-.25,s:.75,c:.15,l:.03,w:.96,sh:[0,.02,0],hi:[.04,.04,-.03],gr:.03,v:.2}},
+{id:'euphoria',cat:'tv',name:'Euphoria',ref:'Season 2 — DP Marcell Rév, colourist Tom Poole',as:"the colour of Euphoria season 2, shot by Marcell Rév on Kodak Ektachrome cross-processed as negative",
+ look:'emotional excess — hot warm highlights, strong magenta, deep blue and real film texture',
+ pal:'deep blue, violet-magenta, hot orange and warm amber',
+ tone:'denser blacks; hard contrast; strong but local colour; glowing practical lights; colour shifts allowed to be a little unpredictable',
+ skin:'warm and glowing against cooler surroundings',tex:'visible Ektachrome grain and cross-processed character — not clinically clean',
+ avoid:'clean neutral digital, flat light, colour spread evenly over everything',
+ key:'The limits of the material can become the aesthetic.',src:['Kodak','https://www.kodak.com/en/motion/blog-post/euphoria/'],
+ sw:['#0D1930','#263C6B','#6B3D81','#DF6C46','#F5B36B'],p:{t:-.05,g:.25,s:1.25,c:.35,l:0,w:1,sh:[0,-.01,.06],hi:[.06,.02,0],gr:.05,v:.2}},
+{id:'succession',cat:'tv',name:'Succession',ref:"Succession — DPs Patrick Capone, Christopher Norr",as:"the colour grading of the series Succession",
+ look:'documentary-plain wealth — muted, cool-neutral and unglamorous',
+ pal:'neutral grey, cool beige, muted navy and pale daylight',
+ tone:"soft contrast from slight underexposure; natural shadows; restrained highlights; nothing lit to look like cinema",
+ skin:'natural and unflattered',tex:"Kodak Vision3 500T 35mm grain, fly-on-the-wall documentary feel",
+ avoid:'stylised colour casts, glamour glow, saturation',
+ key:"Less cinema, more photojournalism.",src:["Kodak","https://www.kodak.com/en/motion/blog-post/succession"],
+ sw:['#9A9A94','#C8C2B4','#3A4658','#E2E2DC','#2A2A28'],p:{t:-.08,g:0,s:.8,c:.05,l:.03,w:.97,sh:[0,.01,.02],hi:[0,0,0],gr:.04,v:.05}},
+{id:'severance',cat:'tv',name:'Severance',ref:'Severance — DP Jessica Lee Gagné',as:"the colour grading of the series Severance",
+ look:"clinical and restrained — muted, almost monochrome greens and blues under fluorescent light",
+ pal:"sterile white, muted green, institutional blue and pale teal",
+ tone:"low-medium contrast; even, flat fluorescent light; desaturated and close to monochrome; cool clean highlights",
+ skin:'pale and slightly cool',tex:'pristine and clean, no grain',
+ avoid:'warmth, texture, saturated reds',
+ key:"A restricted palette as emotional restraint.",src:["PremiumBeat","https://premiumbeat.com/blog/cinematographer-jessica-lee-gagne-on-shooting-severance"],
+ sw:['#E8EEEA','#5FA39A','#B8D1C2','#3A6A8C','#1E2A2A'],p:{t:-.2,g:-.15,s:.75,c:.05,l:.04,w:.97,sh:[-.01,.03,.03],hi:[0,.02,.01],gr:0,v:.05}},
+{id:'ozark',cat:'tv',name:'Ozark',ref:'Ozark — DP Ben Kutchins, colourist Tim Stipan',as:"the colour grading of the series Ozark",
+ look:'anxious and cold — one consistent cyan-blue world with the warmth drained out',
+ pal:'cold cyan, blue-grey, slate and pale steel',
+ tone:'shadows and midtones pushed toward cyan-blue; warm colours reduced; low saturation; soft-medium contrast that still separates the subject from the background',
+ skin:'restrained and slightly blue-grey, but still readable as skin',tex:'clean digital, faint texture',
+ avoid:'warm highlights, golden light, saturated colour, letting people merge into the background',
+ key:'Consistency can be more powerful than variety.',
+ sw:['#101D24','#203C49','#3B6774','#6B8C94','#A6B5B6'],p:{t:-.4,g:-.05,s:.55,c:.15,l:.03,w:.95,sh:[-.02,.02,.05],hi:[-.01,.01,.02],gr:.01,v:.2}},
+{id:'chernobyl',cat:'tv',name:'Chernobyl',ref:'Chernobyl — DP Jakob Ihre',as:"the colour grading of the series Chernobyl, shot by Jakob Ihre",
+ look:'oppressive Soviet grey — desaturated, sickly green, heavy and toxic',
+ pal:'grey-green, concrete grey, faded olive and dirty yellow',
+ tone:"medium contrast; murky green shadows; sunlight that feels like a threat; highlights that grow overexposed and harsh",
+ skin:'pale and grey',tex:'fine film grain',
+ avoid:'warm colour, saturation, blue skies',
+ key:"Light as a threat.",src:["American Cinematographer","https://theasc.com/video/chernobyl-jakob-ihre-fsf-5/"],
+ sw:['#7A8370','#9A9C94','#5E6648','#B8B07A','#1E211C'],p:{t:-.1,g:-.3,s:.45,c:.15,l:.04,w:.93,sh:[-.01,.03,.01],hi:[.01,.03,-.01],gr:.03,v:.2}},
+{id:'peaky',cat:'tv',name:'Peaky Blinders',ref:'Peaky Blinders — DP George Steel',as:"the colour grading of the series Peaky Blinders",
+ look:'smoke and fire — amber firelight against steel-blue gloom',
+ pal:'fiery amber, smoky brown, steel blue and soot black',
+ tone:"high contrast; shafts of light cutting through smoke and darkness; deep, cool shadows; warm amber from fire, candles and oil lamps",
+ skin:'warm, firelit',tex:'smoky atmosphere, fine grain',
+ avoid:'bright daylight, pastels, flat lighting',
+ key:"Shafts of light through smoke and darkness.",src:["American Cinematographer","https://theasc.com/article/peaky-blinders-mean-streets/"],
+ sw:['#D98A3A','#6A4A2E','#3E5468','#0E0E0E','#B8A890'],p:{t:.15,g:0,s:.75,c:.35,l:0,w:.97,sh:[-.02,0,.03],hi:[.06,.03,-.03],gr:.03,v:.4}},
+{id:'stranger',cat:'tv',name:'Stranger Things',ref:'Stranger Things — DP Tim Ives',as:"the colour grading of the series Stranger Things",
+ look:'1980s Kodak suburbia — warm days, teal-blue nights, Christmas-light reds',
+ pal:'warm amber, teal blue, red and faded suburban green',
+ tone:"medium contrast; soft, round, velvety tones like 1980s film; teal shadows; warm highlights",
+ skin:'warm and natural',tex:"soft 1980s film grain, reminiscent of Kodak 5293",
+ avoid:'modern clean digital, neon magenta, heavy desaturation',
+ key:"Soft, round and velvety — remember the 80s, don’t copy them clinically.",src:["British Cinematographer","https://britishcinematographer.co.uk/tim-ives-asc-goes-back-to-the-future-for-stranger-things-3/"],
+ sw:['#D9A04A','#2E6E8C','#C2302A','#6E8A4A','#141C24'],p:{t:.1,g:0,s:1.1,c:.15,l:.03,w:.98,sh:[-.01,.02,.04],hi:[.04,.02,-.02],gr:.05,v:.2}},
+{id:'bron',cat:'tv',name:'The Bridge',ref:'Bron / Broen — SVT, DR',as:"the Nordic noir colour grading of the Swedish-Danish series The Bridge (Bron/Broen)",
+ look:'Nordic noir — cold, desaturated yellow-green under sodium and overcast',
+ pal:'sodium yellow, grey-green, slate and pale concrete',
+ tone:"low contrast; never crushed blacks or pushed highlights; cool green-grey shadows; dirty yellow highlights",
+ skin:'pale and drawn',tex:'clean digital',
+ avoid:'warmth, saturated colour, sunny light',
+ key:"Low contrast — never crush the blacks.",
+ sw:['#C2B460','#7E8A78','#4E5A60','#B4B4AA','#141816'],p:{t:.05,g:-.25,s:.5,c:.15,l:.03,w:.95,sh:[-.01,.02,.03],hi:[.03,.03,-.02],gr:.02,v:.2}},
+{id:'bear',cat:'tv',name:'The Bear',ref:'The Bear — DP Andrew Wehde',as:"the colour grading of the series The Bear",
+ look:"controlled kitchen chaos — cold blue-white kitchen against warm tungsten from the dining room and street",
+ pal:"cold kitchen blue, steel, chef-white, warm tungsten amber and deep red",
+ tone:"medium-high contrast; practical light only; cool kitchen against warm spill from outside",
+ skin:"creamy and soft, with sharp eyes",tex:"film-like softness from vintage lenses, light grain",
+ avoid:"pastels, an evenly warm image, flat soft light",
+ key:"Cold kitchen, warm world outside.",src:["Panavision","https://www.panavision.com/highlights/highlights-detail/controlled-chaos-in-the-kitchen"],
+ sw:["#8FA8B8","#9AA0A0","#E8ECE8","#D99A4A","#8A1E1E"],p:{t:-.05,g:-.05,s:1.0,c:.25,l:.01,w:1,sh:[-.01,.01,.03],hi:[.04,.02,-.02],gr:.04,v:.15}},
+{id:'twinpeaks',cat:'tv',name:'Twin Peaks',ref:"Twin Peaks (1990) — DPs Ron Garcia, Frank Byers",as:"the colour of the original Twin Peaks series (1990)",
+ look:"warm and comfortable on the surface — wood, cherry red and fir green, softly 80s, hiding something",
+ pal:'cherry red, warm wood brown, Douglas-fir green and coffee amber',
+ tone:'medium contrast; warm shadows; soft highlights',
+ skin:'warm and soft',tex:'soft 1990 film grain',
+ avoid:'cold blue tones, clean modern digital',
+ key:"Warm on the surface, so the turbulence underneath shows.",src:["Dazed","https://www.dazeddigital.com/artsandculture/article/35841/1/how-twin-peaks-set-the-standard-for-tv-aesthetics"],
+ sw:['#A01E22','#7A4A2A','#2E4A32','#C2803A','#1A120E'],p:{t:.25,g:0,s:1.1,c:.1,l:.04,w:.97,sh:[.01,.02,0],hi:[.04,.02,-.02],gr:.04,v:.2}},
+
+// Films
+{id:'br2049',cat:'film',name:'Blade Runner 2049',ref:'Las Vegas sequence — DP Roger Deakins',as:"the orange Las Vegas sequence in Blade Runner 2049, shot by Roger Deakins",
+ look:'monochrome orange — lonely, vast and dystopian, with monumental black',
+ pal:'burnt orange, amber, rust and deep brown-black',
+ tone:'one dominant colour family across the whole frame; skin and background share the same colour world; depth comes from haze, silhouettes and luminance differences rather than hue; soft contrast',
+ skin:'washed in the same amber as everything else',tex:'smooth, clean, airy',
+ avoid:'blue and green, mixed colour families, hard digital shadows',
+ key:'Remove colour information and let light and scale carry the rest.',src:['Filmmaker Magazine','https://filmmakermagazine.com/103272-the-color-of-the-future/'],
+ sw:['#261407','#6F2808','#C14E05','#E68416','#F5B13C'],p:{t:.7,g:0,s:1.1,c:0,l:.04,w:.95,sh:[.04,0,-.04],hi:[.08,.03,-.08],gr:.01,v:.25}},
+{id:'br1982',cat:'film',name:'Blade Runner',ref:'1982 — DP Jordan Cronenweth',as:"the colour grading of the original Blade Runner (1982), shot by Jordan Cronenweth",
+ look:'smoky neon noir — blue-cyan night, shafts of light, amber practicals',
+ pal:'smoky blue, cyan, amber, neon red and deep black',
+ tone:"high contrast; warm soft light from the front against hard backlight through smoke; deep black; hazy shafts of light",
+ skin:'cool with warm edge light',tex:'film grain and smoke diffusion',
+ avoid:'daylight warmth, pastels, flat light',
+ key:"Warm soft front, hard backlight through smoke.",src:["American Cinematographer","https://theasc.com/article/blade-runner-cronenweths-photography/"],
+ sw:['#2E4A6E','#3A9AB0','#D99A3A','#C2302A','#06080C'],p:{t:-.25,g:0,s:.9,c:.3,l:.02,w:.97,sh:[-.02,.01,.05],hi:[.05,.02,-.02],gr:.05,v:.35}},
+{id:'matrix',cat:'film',name:'The Matrix',ref:'1999 — DP Bill Pope',as:"The Matrix (1999) as shot by Bill Pope — the original theatrical look, not the later extra-green home-video versions",
+ look:'poison-green artificial reality — cool, controlled, almost nothing neutral',
+ pal:'poison green, cold cyan, muted olive and near-metallic black',
+ tone:'cooled overall with midtones pushed toward green-cyan; saturation lowered; dense, near-metallic blacks; no pretty blue skies',
+ skin:'restrained and slightly cool, not painted green',tex:'35mm film grain, crisp',
+ avoid:'warm tones, beautiful blue skies, fully neutral whites, a cartoonish green',
+ key:'One colour can define an entire fictional reality.',src:['American Cinematographer','https://theasc.com/articles/flashback-the-matrix'],
+ sw:['#0B1713','#243B31','#57725A','#91A58A','#D7D7B6'],p:{t:-.15,g:-.4,s:.7,c:.3,l:.01,w:.96,sh:[-.03,.03,.01],hi:[-.01,.03,-.02],gr:.03,v:.25}},
+{id:'madmax',cat:'film',name:'Mad Max: Fury Road',ref:"2015 — DP John Seale, colourist Eric Whipp",as:"the colour grading of Mad Max: Fury Road",
+ look:"graphic-novel wasteland — saturated scorching orange by day, deep blue by night",
+ pal:'blazing orange, rust, deep teal and cyan sky',
+ tone:'high contrast; crunchy detail; teal shadows; hot orange highlights',
+ skin:'tanned, dusty, warm',tex:'crisp, sharp, slight crunch',
+ avoid:"bleached desaturated post-apocalypse, a grey look, soft haze",
+ key:"The apocalypse doesn’t have to be grey.",src:["Lowepost","https://lowepost.com/casestudies/mad-max-fury-road-r9/"],
+ sw:['#E87A2A','#B8542A','#1E6E7A','#3AA0C0','#1A0E08'],p:{t:.35,g:0,s:1.5,c:.35,l:0,w:1,sh:[-.03,.01,.04],hi:[.07,.03,-.05],gr:.02,v:.2}},
+{id:'joker',cat:'film',name:'Joker',ref:"2019 — DP Lawrence Sher, colourist Jill Bogdanowicz",as:"the colour grading of Joker (2019), shot by Lawrence Sher",
+ look:'grimy 1970s city — sodium yellow and teal-green decay',
+ pal:'sodium yellow, teal-green, grimy brown and sickly fluorescent',
+ tone:'medium-high contrast; murky teal shadows; sodium highlights',
+ skin:'sallow and pale',tex:'heavy 35mm-style grain',
+ avoid:'clean bright colour, warm pastels',
+ key:"Grade the memory of a 1970s film, not a copy of one.",src:["American Society of Cinematographers","https://theasc.com/news/clubhouse-conversation-lawrence-sher-asc-on-joker"],
+ sw:['#C8A23A','#3A6E62','#5A4A32','#B8C27A','#10140F'],p:{t:.1,g:-.2,s:.85,c:.2,l:.03,w:.95,sh:[-.02,.03,.03],hi:[.05,.04,-.03],gr:.05,v:.25}},
+{id:'childrenofmen',cat:'film',name:'Children of Men',ref:'2006 — DP Emmanuel Lubezki',as:"the colour grading of Children of Men, shot by Emmanuel Lubezki",
+ look:"bleak and industrial — desaturated grey, blue and green, documentary and grim",
+ pal:"ash grey, cold blue-grey, uneasy fluorescent green and mud brown",
+ tone:"medium contrast; grey shadows; dull overcast highlights; fluorescent green pushed so it feels uncomfortable",
+ skin:'pale and drained',tex:'gritty film grain',
+ avoid:'saturated colour, warmth, glamour',
+ key:"Green is a colour that makes you a little uncomfortable.",src:["American Cinematographer","https://theasc.com/article/children-of-men-humanitys-last-hope/"],
+ sw:['#9AA0A0','#7A8C90','#5A4E3E','#A69A7A','#1E2224'],p:{t:-.15,g:-.05,s:.4,c:.15,l:.04,w:.94,sh:[-.01,.01,.03],hi:[.01,.01,0],gr:.04,v:.15}},
+{id:'lalaland',cat:'film',name:'La La Land',ref:'2016 — DP Linus Sandgren',as:"the colour grading of La La Land, shot by Linus Sandgren",
+ look:"magical, not realistic — saturated primaries under pink and blue magic-hour skies",
+ pal:'saturated blue, purple dusk, golden yellow, primary red and emerald',
+ tone:"medium contrast; skies of pink and blue twilight; violet-blue nights captured at dusk; warm golden highlights",
+ skin:'warm and glowing',tex:"35mm film, fine grain, glossy",
+ avoid:'desaturation, grey tones, gritty texture',
+ key:"Magical rather than realistic.",src:["Panavision","https://www.panavision.com/highlights/highlights-detail/cinematographer-linus-sandgren-fsf-on-la-la-land"],
+ sw:['#2E4AB8','#7A4AA0','#F2C23A','#D02A2A','#1E8A5A'],p:{t:0,g:.2,s:1.35,c:.15,l:.02,w:1,sh:[0,-.01,.06],hi:[.05,.03,-.02],gr:.02,v:.15}},
+{id:'barrylyndon',cat:'film',name:'Barry Lyndon',ref:'1975 — DP John Alcott',as:"the candlelit cinematography of Stanley Kubrick's Barry Lyndon, shot by John Alcott",
+ look:'candlelit oil painting — warm amber glow, soft and painterly',
+ pal:'candle amber, honey, umber, muted olive and soft cream',
+ tone:"low contrast; lit only by candles; deep warm brown shadows; razor-thin depth of field; soft golden highlights",
+ skin:'warm, porcelain and candlelit',tex:"pushed film grain and painterly softness",
+ avoid:'cool tones, sharp digital clarity, saturation',
+ key:"Light only from candles.",src:["Neil Oseman","https://neiloseman.com/?p=9341"],
+ sw:['#D99A4A','#E8C27A','#5A3E22','#7A7448','#F0E2C2'],p:{t:.45,g:.05,s:.85,c:-.05,l:.04,w:.93,sh:[.02,0,-.02],hi:[.06,.03,-.04],gr:.05,v:.4}},
+{id:'obrother',cat:'film',name:'O Brother, Where Art Thou?',ref:'2000 — DP Roger Deakins',as:"the sepia-gold digital-intermediate grade of O Brother, Where Art Thou?, shot by Roger Deakins",
+ look:'dry, dusty sepia-gold — green vegetation turned to a faded yellow-brown Mississippi',
+ pal:'straw yellow, dusty gold, sepia brown and faded sky',
+ tone:'medium contrast; greens shifted to faded yellow-brown; warm brown shadows; golden highlights',
+ skin:'sun-browned',tex:'light film grain',
+ avoid:'lush green, blue, cold tones',
+ key:'Digital colour control can change even the identity of nature.',src:['American Cinematographer','https://theasc.com/article/o-brother-cinematography-deakins/'],
+ sw:['#D9B86A','#B8924A','#6E5232','#C8BFA0','#2A2014'],p:{t:.45,g:-.1,s:.65,c:.15,l:.03,w:.97,sh:[.02,.01,-.02],hi:[.06,.05,-.06],gr:.03,v:.2}},
+{id:'spr',cat:'film',name:'Saving Private Ryan',ref:'1998 — DP Janusz Kamiński',as:"the bleach-bypass look of Saving Private Ryan, shot by Janusz Kamiński",
+ look:'bleach bypass — silvery, desaturated and harsh',
+ pal:'silver grey, desaturated olive and cold steel',
+ tone:"high contrast; colour drained by bleach bypass; deep blacks; silvery, hard highlights; staccato, crisp detail",
+ skin:'drained, grey and gritty',tex:'coarse film grain',
+ avoid:'warm saturated colour, soft light, glamour',
+ key:"Drain the colour to drain the comfort.",src:["American Cinematographer","https://theasc.com/articles/saving-private-ryan-the-last-great-war"],
+ sw:['#A8AAA6','#6E7258','#5A6068','#1A1C1A','#D8DAD6'],p:{t:-.05,g:0,s:.35,c:.45,l:0,w:1,sh:[0,0,.01],hi:[0,0,0],gr:.06,v:.2}},
+{id:'suspiria',cat:'film',name:'Suspiria',ref:'1977 — DP Luciano Tovoli',as:"the Technicolor gel lighting of Dario Argento's Suspiria (1977)",
+ look:"totally artificial — pure red, blue and green light sculpted through coloured velvet, printed in Technicolor",
+ pal:'blood red, deep blue, poison green and black',
+ tone:"high contrast; inky blacks; saturated coloured light sculpted across surfaces; dye-transfer density",
+ skin:'washed in red and blue light',tex:'1970s film grain',
+ avoid:'naturalistic colour, white light, desaturation',
+ key:"Leave the natural behind.",src:["American Cinematographer","https://theasc.com/articles/suspiria-terror-in-technicolor"],
+ sw:['#C2121E','#1E2EA0','#1E8A3A','#E83A5A','#07050A'],p:{t:0,g:.2,s:1.6,c:.35,l:0,w:1,sh:[.04,-.02,.05],hi:[.06,-.01,0],gr:.04,v:.35}},
+
+// Photographers
+{id:'eggleston',cat:'photo',name:'William Eggleston',ref:'Dye-transfer prints, 1970s',as:"William Eggleston's 1970s dye-transfer colour photographs",
+ look:'everyday Americana that turns almost surreal through colour',
+ pal:'intense red, deep green, yellow light sources and rich, full colour',
+ tone:'clear colour differences between objects; available light; medium contrast; depth from the colour itself rather than pushed saturation',
+ skin:'warm and natural',tex:'fine grain, dense glossy dye-transfer print',
+ avoid:'muted tones, teal-and-orange, haze, simply cranking saturation',
+ key:'A banal subject becomes unforgettable through colour.',src:['Whitney Museum','https://whitney.org/collection/works/9204'],
+ sw:['#351410','#8C1817','#CA3026','#EBA65A','#E4D3AF'],p:{t:.15,g:.05,s:1.3,c:.2,l:.02,w:1,sh:[.01,0,.02],hi:[.03,.02,-.02],gr:.03,v:.1}},
+{id:'leiter',cat:'photo',name:'Saul Leiter',ref:"Early Color — New York, expired Kodachrome",as:"Saul Leiter's painterly 1950s New York colour photographs",
+ look:"painterly and muted — soft, foggy colour on expired film, seen through glass, with a spot of red",
+ pal:'muted umber, soft grey, faded teal, with small accents of red and yellow',
+ tone:"low contrast; large soft dark areas; gentle highlights; odd colour shifts welcomed rather than corrected",
+ skin:'soft and muted',tex:'grain, softness, a sense of looking through glass',
+ avoid:'crispness, saturation everywhere, hard contrast',
+ key:"Welcome the odd colour shifts.",src:["Saul Leiter Foundation","https://saulleiterfoundation.org/biography"],
+ sw:['#6E5E4E','#9A9890','#5A7A7A','#C2302A','#E2B83A'],p:{t:.1,g:0,s:.75,c:0,l:.06,w:.95,sh:[.02,.01,0],hi:[.02,.01,-.01],gr:.05,v:.2}},
+{id:'shore',cat:'photo',name:'Stephen Shore',ref:"Uncommon Places — 8×10 view camera",as:"Stephen Shore's Uncommon Places colour photographs",
+ look:'flat bright daylight — pale, precise, pastel American colour',
+ pal:'pale sky blue, faded pastel, warm beige and clean white',
+ tone:"low contrast; ordinary, unglamorous daylight; open shadows; precise detail everywhere",
+ skin:'natural, sunlit',tex:'fine large-format detail, almost no grain',
+ avoid:'drama, deep blacks, heavy colour casts',
+ key:"Describe, don’t dramatise.",src:["MoMA","https://www.moma.org/collection/works/52724"],
+ sw:['#A8C8E0','#E2CFA8','#C8B8A0','#F4F2EC','#7A7468'],p:{t:.05,g:0,s:.9,c:-.05,l:.05,w:.98,sh:[.01,.01,.02],hi:[.01,.01,-.01],gr:.02,v:0}},
+{id:'crewdson',cat:'photo',name:'Gregory Crewdson',ref:"Twilight · Beneath the Roses — lighting DP Richard Sands",as:"Gregory Crewdson's cinematic twilight photographs",
+ look:'eerie blue hour — cool dusk with warm practical windows',
+ pal:'twilight blue, deep teal, warm window amber and suburban green',
+ tone:"medium contrast; twilight ambient in blue; staged cinematic practicals glowing warm from windows and lamps",
+ skin:'cool and pale, lit warmly from practicals',tex:'pristine large-format detail',
+ avoid:'daylight, saturation everywhere, grain',
+ key:"Twilight makes the ordinary mysterious.",src:["Gagosian","https://gagosian.com/exhibitions/2002/gregory-crewdson-twilight/"],
+ sw:['#2E4A7A','#1E5A62','#E8A04A','#4A6A3A','#0E1424'],p:{t:-.3,g:0,s:1.0,c:.15,l:.02,w:.98,sh:[-.02,0,.05],hi:[.06,.03,-.03],gr:.01,v:.3}},
+{id:'hido',cat:'photo',name:'Todd Hido',ref:'Homes at Night',as:"Todd Hido's Homes at Night photographs",
+ look:'quiet suburban night — blue-green darkness, fog and a single warm window',
+ pal:'blue-green dark, misty teal, slate and an isolated warm window amber',
+ tone:'soft contrast; dark but living shadows; smooth transitions; cool ambient light with one or two warm sources; keep the odd colour shifts between mixed light sources',
+ skin:'cool, picking up warmth only near light sources',tex:'long-exposure smoothness with gentle grain',
+ avoid:'neutralising the mixed light, bright daylight, saturation everywhere',
+ key:'A single lit window can carry the whole picture.',src:['Artsy','https://www.artsy.net/artist/todd-hido'],
+ sw:['#0C1822','#183748','#30556B','#607680','#F0B979'],p:{t:-.3,g:-.1,s:.85,c:.05,l:.04,w:.96,sh:[-.02,.02,.05],hi:[.05,.03,-.02],gr:.03,v:.3}},
+{id:'goldin',cat:'photo',name:'Nan Goldin',ref:'The Ballad of Sexual Dependency',as:"Nan Goldin's flash-lit colour photographs",
+ look:'raw and intimate — direct flash, saturated warm skin and deep reds',
+ pal:'deep red, warm skin tones, saturated blue and dark brown',
+ tone:"medium-high contrast; on-camera flash mixed with available light; dark falloff; hot highlights",
+ skin:'warm and saturated',tex:'visible grain, snapshot rawness',
+ avoid:'polish, soft pastel, clean neutrality',
+ key:"Immediate and unfiltered.",src:["Princeton University Art Museum","https://artmuseum.princeton.edu/recent-acquisitions/nan-goldins-ballad-sexual-dependency"],
+ sw:['#A01E2A','#D98A6A','#2E3E8A','#3A221A','#F0C0A0'],p:{t:.2,g:.1,s:1.25,c:.25,l:.01,w:1,sh:[.02,0,.01],hi:[.03,.01,-.02],gr:.06,v:.25}},
+{id:'parr',cat:'photo',name:'Martin Parr',ref:"The Last Resort — daylight flash, medium format",as:"Martin Parr's saturated flash photography",
+ look:"garish and bright — flash in daylight, saturated seaside colour",
+ pal:'bright primary colours, candy pink, turquoise and sunburnt skin',
+ tone:'medium-high contrast; flash-bright subjects; clean highlights',
+ skin:'pink and sunburnt',tex:'crisp, slight grain',
+ avoid:'muted tones, moody darkness, desaturation',
+ key:"Flash in daylight makes the ordinary garish.",src:["Canon","https://www.canon.co.uk/pro/stories/martin-parr-style-vision/"],
+ sw:['#E83A3A','#F27AB0','#2AB0B8','#F2D23A','#2A50C8'],p:{t:.1,g:.05,s:1.45,c:.25,l:0,w:1,sh:[0,0,0],hi:[.02,.02,0],gr:.02,v:.05}},
+{id:'herzog',cat:'photo',name:'Fred Herzog',ref:'Vancouver street, Kodachrome',as:"Fred Herzog's Kodachrome street photographs of 1950s–60s Vancouver",
+ look:"mid-century street on Kodachrome — warm red-orange street life, red as the muse",
+ pal:'Kodachrome red, deep blue, mustard and teal signage',
+ tone:'medium-high contrast; dense blacks; bright highlights',
+ skin:'warm and natural',tex:'fine Kodachrome grain',
+ avoid:'washed-out pastel, teal-and-orange, haze',
+ key:"Let Kodachrome red carry the street.",src:["National Gallery of Canada","https://www.gallery.ca/node/278517"],
+ sw:['#B81E22','#1E3A7A','#D9A03A','#2A7A7A','#141414'],p:{t:.05,g:0,s:1.25,c:.25,l:0,w:.98,sh:[0,0,.02],hi:[.02,.01,-.01],gr:.03,v:.1}},
+{id:'moriyama',cat:'photo',name:'Daido Moriyama',ref:'Are-bure-boke',as:"Daido Moriyama's grainy, high-contrast black-and-white street photographs",
+ look:'rough, grainy, blurry — black and white at its harshest',
+ pal:'hard blacks and blown whites',
+ tone:'extreme contrast; crushed blacks; blown highlights',
+ skin:'hard-edged grey',tex:'heavy coarse grain, blur and grit',
+ avoid:'any colour, smooth tones, clean detail',
+ key:"Grainy, blurry, out of focus — on purpose.",src:["Photo Elysée","https://elysee.ch/en/2024/09/seven-facts-to-know-about-daido-moriyama"],
+ sw:['#F4F4F4','#A0A0A0','#505050','#1A1A1A','#000000'],p:{t:0,g:0,s:0,c:.7,l:0,w:1,sh:[0,0,0],hi:[0,0,0],gr:.14,v:.35}},
+{id:'adams',cat:'photo',name:'Ansel Adams',ref:'Zone System',as:"Ansel Adams's Zone System black-and-white landscapes",
+ look:'majestic black and white — full tonal range from deep black to luminous white',
+ pal:'the full range, every zone from 0 to X',
+ tone:"rich contrast with the full range; deep blacks; luminous, detailed whites; blue skies rendered almost black as through a deep red filter",
+ skin:'smooth mid-grey',tex:'large-format sharpness, no visible grain',
+ avoid:'any colour, flat greys, grain',
+ key:"Print the feeling of the place, not just how it looked.",src:["North Carolina Museum of Art","https://learn.ncartmuseum.org/artwork/monolith-the-face-of-half-dome-yosemite-national-park-california/"],
+ sw:['#FAFAFA','#C4C4C4','#8A8A8A','#3E3E3E','#060606'],p:{t:0,g:0,s:0,c:.35,l:0,w:1,sh:[0,0,0],hi:[0,0,0],gr:.01,v:.08}},
+{id:'petersen',cat:'photo',name:'Anders Petersen',ref:'Café Lehmitz',as:"Anders Petersen's grainy, intimate black-and-white photographs (Café Lehmitz)",
+ look:'intimate and murky — grainy black and white, dense and close',
+ pal:'weighted heavily toward the dark end',
+ tone:'high contrast; dense, deep shadows; soft dirty highlights',
+ skin:'glowing grey from the dark',tex:'heavy grain, low-light softness',
+ avoid:'any colour, cleanliness, bright open tones',
+ key:"Get close enough to be part of it.",src:["Fotografiska","https://newyork.fotografiska.com/exhibitions/anders-petersen"],
+ sw:['#D0D0D0','#8A8A8A','#4A4A4A','#1E1E1E','#050505'],p:{t:0,g:0,s:0,c:.45,l:.02,w:.96,sh:[0,0,0],hi:[0,0,0],gr:.12,v:.45}},
+
+// Film stocks
+{id:'portra',cat:'stock',name:'Kodak Portra 400',ref:'Colour negative',as:"Kodak Portra 400 colour negative film",
+ look:'warm, soft and flattering — the classic portrait film',
+ pal:'warm skin tones, soft pastel greens, gentle blue',
+ tone:'low contrast; lifted shadows; soft, wide highlights',
+ skin:'warm, smooth and flattering',tex:'fine film grain',
+ avoid:'harsh contrast, oversaturation, digital crispness',
+ key:"Built for skin.",src:["Wikipedia","https://en.wikipedia.org/wiki/Kodak_Portra"],
+ sw:['#E8B898','#A8B890','#9AB8D0','#F2E2C8','#5A4A3E'],p:{t:.15,g:.03,s:.9,c:-.1,l:.04,w:.97,sh:[.01,.01,.02],hi:[.03,.02,-.01],gr:.04,v:.05}},
+{id:'pro400h',cat:'stock',name:'Fuji Pro 400H',ref:"Colour negative, discontinued 2021",as:"Fujifilm Pro 400H film, overexposed",
+ look:'airy and cool — mint greens and pastel overexposure',
+ pal:'mint green, pale cyan, soft pink and creamy white',
+ tone:"low contrast; overexposed by a stop or more; airy lifted shadows; bright pastel highlights",
+ skin:'pale and soft',tex:'fine film grain',
+ avoid:'warm amber, deep blacks, saturation',
+ key:"Overexpose for air.",src:["PetaPixel","https://petapixel.com/2021/01/15/fujifilm-has-discontinued-its-pro-400h-color-negative-film"],
+ sw:['#B8D8C8','#A8D0D8','#F0C8C8','#F4F2E8','#6A7A74'],p:{t:-.1,g:-.15,s:.85,c:-.15,l:.06,w:.98,sh:[-.01,.03,.03],hi:[0,.02,.01],gr:.04,v:0}},
+{id:'cinestill',cat:'stock',name:'CineStill 800T',ref:"Kodak Vision3 500T without rem-jet, 3200K",as:"CineStill 800T tungsten film shot at night",
+ look:'tungsten night — cool cyan shadows and red halation around every light',
+ pal:'cool cyan, teal, warm white lights with red-orange glow',
+ tone:'medium contrast; cool blue-cyan shadows; glowing highlights',
+ skin:'neutral to cool',tex:'visible grain and strong red halation around light sources',
+ avoid:'daylight warmth, clean edges around lights',
+ key:"No anti-halation layer — every light glows.",src:["Parallax Photographic","https://parallaxphotographic.coop/?p=10501"],
+ sw:['#2E7A8C','#1E4A62','#F2E2C0','#E04A2A','#0A1418'],p:{t:-.35,g:0,s:1.05,c:.15,l:.03,w:1,sh:[-.02,.02,.06],hi:[.06,.01,-.02],gr:.07,v:.2}},
+{id:'kodachrome',cat:'stock',name:'Kodachrome 64',ref:"Colour reversal, K-14, discontinued 2009",as:"Kodachrome 64 slide film",
+ look:'vintage slide punch — deep reds and yellows, dense blacks',
+ pal:'Kodachrome red, warm yellow, deep blue sky and rich green',
+ tone:'medium-high contrast; dense blacks; bright clean highlights',
+ skin:'warm and saturated',tex:'very fine grain',
+ avoid:'pastel, faded blacks, teal-and-orange',
+ key:"Colour added in the developer, not in the film.",src:["SFMOMA","https://openspace.sfmoma.org/?p=23737"],
+ sw:['#C21E22','#F2C23A','#1E4A9A','#2E6A3A','#0E0E0E'],p:{t:.1,g:0,s:1.3,c:.3,l:0,w:.98,sh:[0,0,.02],hi:[.03,.02,-.02],gr:.03,v:.15}},
+{id:'velvia',cat:'stock',name:'Fujifilm Velvia 50',ref:'Colour reversal',as:"Fujifilm Velvia 50 slide film",
+ look:'ultra-saturated landscape slide film — vivid greens and blues',
+ pal:'vivid green, deep blue, saturated magenta-red and orange',
+ tone:'high contrast; deep blacks; crisp highlights',
+ skin:'saturated and slightly red',tex:'extremely fine grain, sharp',
+ avoid:'muted tones, lifted blacks, softness',
+ key:"Saturation as a landscape language.",src:["Beau Photo","https://beauphoto.com/film-friday-32-fuji-velvia-50"],
+ sw:['#1E8A3A','#1E50C8','#C21E5A','#F28A1E','#060A0E'],p:{t:-.05,g:-.05,s:1.6,c:.35,l:0,w:1,sh:[-.01,0,.03],hi:[.01,.01,0],gr:.02,v:.15}},
+{id:'ektachrome',cat:'stock',name:'Kodak Ektachrome E100',ref:'Colour reversal',as:"Kodak Ektachrome E100 slide film",
+ look:"clean modern slide film — neutral tone scale, crisp, moderately enhanced saturation",
+ pal:"clear blue, clean neutral white, natural greens and true skin",
+ tone:"medium contrast; neutral greys; clean blacks; crisp highlights; very slightly cool",
+ skin:'clean and slightly cool',tex:'very fine grain',
+ avoid:'warm casts, faded blacks',
+ key:"Clean, neutral and crisp.",src:["Kodak / CineStill","https://kodak.cinestillfilm.com/products/ektachrome-e100-now-available-in-120-medium-format-color-reversal-film-135-36exp-iso-100"],
+ sw:['#2E6EC8','#3AB0C8','#F4F6F8','#3A8A4A','#0A0E14'],p:{t:-.08,g:0,s:1.15,c:.2,l:0,w:1,sh:[0,.01,.02],hi:[0,0,0],gr:.02,v:.08}},
+{id:'polaroid',cat:'stock',name:'Polaroid',ref:'SX-70 · 600 instant film',as:"vintage Polaroid instant film",
+ look:'faded instant film — washed blacks with a magenta-teal shift',
+ pal:'faded teal, soft magenta, creamy yellow and milky black',
+ tone:'low contrast; milky lifted blacks; soft, slightly blown highlights',
+ skin:'warm and soft, slightly magenta',tex:'soft, slightly blurry, chemical texture',
+ avoid:'sharp digital detail, deep blacks, neutral colour',
+ key:"Imperfection is the look.",src:["Analog.Cafe","https://www.analog.cafe/r/polaroid-sx-70-colour-film-review-420m"],
+ sw:['#6AA8A8','#D88AB0','#F2E2A8','#4A4A5A','#F4EEE0'],p:{t:.1,g:.2,s:.8,c:-.1,l:.12,w:.92,sh:[-.02,.03,.04],hi:[.04,0,-.02],gr:.03,v:.3}},
+{id:'hp5',cat:'stock',name:'Ilford HP5 Plus',ref:'Black-and-white negative',as:"Ilford HP5 Plus black-and-white film",
+ look:'classic black-and-white film — punchy with visible grain',
+ pal:'a full grey scale from solid black to bright white',
+ tone:"medium-high contrast; solid blacks; bright whites; pushed it gets harder and grainier",
+ skin:'natural grey with good modelling',tex:'visible, classic film grain',
+ avoid:'any colour, digital smoothness',
+ key:"Push it and the grain becomes part of the picture.",src:["Ilford","https://ilfordphoto.com/film-review-ilford-hp5-plus-emulsive"],
+ sw:['#F0F0F0','#B0B0B0','#707070','#303030','#080808'],p:{t:0,g:0,s:0,c:.25,l:0,w:1,sh:[0,0,0],hi:[0,0,0],gr:.08,v:.12}},
+];
+
+// ---------- State ----------
+const $ = id => document.getElementById(id);
+const store = {get(k,d){try{const v=localStorage.getItem('deltae-'+k);return v==null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem('deltae-'+k,v)}catch(e){}}};
+const state = {
+  preset: PRESETS[1].id,
+  image: IMAGES[0].id,
+  model: store.get('model','nano'),
+  k: 80,
+  scene: {person:'1',where:'in',time:'day',atmo:'0'},
+  split: .5,
+};
+let visible = PRESETS.slice();
+let src = null;        // full-size source ImageData
+let small = null;      // thumbnail-size source ImageData
+let custom = null;     // user image {url,name}
+
+// ---------- Grade (preview sketch) ----------
+function hash(i){i=(i^61)^(i>>>16);i=i+(i<<3);i=i^(i>>>4);i=Math.imul(i,0x27d4eb2d);i=i^(i>>>15);return (i>>>0)/4294967296}
+function grade(from, to, P, k){
+  const d=from.data, o=to.data, W=from.width, H=from.height;
+  const t=P.t*k, g=P.g*k, s=1+(P.s-1)*k, c=P.c*k, l=P.l*k, w=1+(P.w-1)*k, gr=P.gr*k, v=P.v*k;
+  const sh=P.sh.map(x=>x*k*2.2), hi=P.hi.map(x=>x*k*2.2); // split-tone scaled so subtle presets still read
+  const R=(1+.32*t)*(1+.03*g), G=1-.15*g, B=(1-.32*t)*(1+.03*g);
+  const gs=Math.max(W,H)/600; // grain scales with size so it reads the same in thumbs
+  for(let y=0,i=0;y<H;y++){
+    const dy=y/H-.5;
+    for(let x=0;x<W;x++,i+=4){
+      let r=d[i]/255*R, gg=d[i+1]/255*G, b=d[i+2]/255*B;
+      let L=.2126*r+.7152*gg+.0722*b;
+      r=L+(r-L)*s; gg=L+(gg-L)*s; b=L+(b-L)*s;
+      r=r<0?0:r>1?1:r; gg=gg<0?0:gg>1?1:gg; b=b<0?0:b>1?1:b;
+      r+=c*(r*r*(3-2*r)-r); gg+=c*(gg*gg*(3-2*gg)-gg); b+=c*(b*b*(3-2*b)-b);
+      L=.2126*r+.7152*gg+.0722*b;
+      const ws=(1-L)*(1-L), wh=L*L;
+      r+=sh[0]*ws+hi[0]*wh; gg+=sh[1]*ws+hi[1]*wh; b+=sh[2]*ws+hi[2]*wh;
+      r=l+r*(w-l); gg=l+gg*(w-l); b=l+b*(w-l);
+      const dx=x/W-.5, m=1-v*(dx*dx+dy*dy)*1.6;
+      const n=gr?(hash(((y/gs|0)*4099+(x/gs|0))|0)-.5)*gr:0;
+      o[i]=(r*m+n)*255; o[i+1]=(gg*m+n)*255; o[i+2]=(b*m+n)*255; o[i+3]=255;
+    }
+  }
+}
+
+// ---------- Image loading ----------
+const out=$('out'), orig=$('orig'), octx=out.getContext('2d'), gctx=orig.getContext('2d');
+const thumbSize=[120,80];
+function loadImage(url){
+  return new Promise((res,rej)=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=rej;im.src=url});
+}
+async function setImage(id){
+  state.image=id;
+  const meta=IMAGES.find(i=>i.id===id);
+  let url;
+  if(id==='custom'){url=custom.url}else{url=imgUrl(meta.src,1600);Object.assign(state.scene,meta.scene)}
+  $('status').hidden=false;$('status').textContent='Loading image…';
+  renderThumbs();renderScene();renderCredit();renderPrompt();
+  try{
+    const im=await loadImage(url);
+    if(state.image!==id)return;
+    const max=1400, sc=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
+    const W=Math.round(im.naturalWidth*sc), H=Math.round(im.naturalHeight*sc);
+    out.width=orig.width=W; out.height=orig.height=H;
+    gctx.drawImage(im,0,0,W,H);
+    src=gctx.getImageData(0,0,W,H);
+    // small source for preset thumbnails, cover-cropped to 3:2
+    const tc=document.createElement('canvas');tc.width=thumbSize[0];tc.height=thumbSize[1];
+    const tx=tc.getContext('2d'), ar=W/H, tar=3/2;
+    let sw=W,sh=H,sx=0,sy=0;
+    if(ar>tar){sw=H*tar;sx=(W-sw)/2}else{sh=W/tar;sy=(H-sh)/2}
+    tx.drawImage(orig,sx,sy,sw,sh,0,0,tc.width,tc.height);
+    small=tx.getImageData(0,0,tc.width,tc.height);
+    $('status').hidden=true;
+    draw();drawPresetThumbs();
+  }catch(e){
+    $('status').hidden=false;$('status').textContent='Could not load the image.';
+  }
+  writeHash();
+}
+function draw(){
+  if(!src)return;
+  const P=cur().p, img=octx.createImageData(src.width,src.height);
+  grade(src,img,P,state.k/100);
+  octx.putImageData(img,0,0);
+  setSplit(state.split);
+}
+function drawPresetThumbs(){
+  if(!small)return;
+  for(const c of document.querySelectorAll('.pre canvas')){
+    const P=PRESETS.find(p=>p.id===c.dataset.id).p;
+    const ctx=c.getContext('2d'), img=ctx.createImageData(small.width,small.height);
+    grade(small,img,P,state.k/100);
+    ctx.putImageData(img,0,0);
+  }
+}
+
+// ---------- Split compare ----------
+function setSplit(f){
+  state.split=Math.max(0,Math.min(1,f));
+  orig.style.clipPath=`inset(0 ${(1-state.split)*100}% 0 0)`;
+  $('split').style.left=(state.split*100)+'%';
+}
+(()=>{
+  const fr=$('frame');let on=false;
+  const at=e=>{const r=out.getBoundingClientRect();setSplit((e.clientX-r.left)/r.width)};
+  fr.addEventListener('pointerdown',e=>{on=true;fr.setPointerCapture(e.pointerId);at(e)});
+  fr.addEventListener('pointermove',e=>{if(on)at(e)});
+  fr.addEventListener('pointerup',()=>on=false);
+  fr.addEventListener('pointercancel',()=>on=false);
+})();
+
+// ---------- Prompts ----------
+const cur=()=>PRESETS.find(p=>p.id===state.preset);
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const end=s=>/[.!?]$/.test(s)?s:s+'.';
+function strengthWord(k){return k<45?'subtle':k<75?'clear':k<95?'strong':'full'}
+function strengthLine(k){
+  return {subtle:'Apply it subtly — a gentle shift toward the look, still close to the original.',
+    clear:'Apply it clearly but with restraint, so the photo still looks natural.',
+    strong:'Apply it strongly — the look should be unmistakable.',
+    full:'Apply it at full strength, as committed as the reference itself.'}[strengthWord(k)];
+}
+function sceneLines(p,sc){
+  const L=[];
+  if(sc.person==='1')L.push(`Skin: ${p.skin}; keep skin believable and consistent across faces.`);
+  if(sc.time==='night')L.push('Night scene: keep practical lights as the brightest points; do not brighten it into day.');
+  else if(sc.where==='out')L.push('Daylight exterior: carry the palette through sky, foliage and ground so it reads as one grade.');
+  if(sc.where==='in')L.push('Interior: grade window light and lamps consistently with the look.');
+  return L;
+}
+function lightLine(sc,short){
+  return sc.atmo==='1'
+    ? (short?'You may shape the light subtly (haze, falloff, bloom) to suit the look, without changing any content.':'You may shape the light subtly to suit the look — haze, light falloff, bloom or halation — but do not change any content.')
+    : (short?'Do not relight, add haze or change the time of day.':'Do not relight the scene, add haze or change the time of day.');
+}
+function build(model){
+  const p=cur(), sc=state.scene, k=state.k, bw=p.p.s===0;
+  const keep='composition, framing, aspect ratio, every person\'s face, identity and expression, pose, clothing, background and every object';
+  if(model==='nano'){
+    return [
+      bw?`Using the provided photo, convert it to black and white in the manner of ${p.as}. This is a tonal edit only: keep the ${keep} exactly as they are.`
+        :`Using the provided photo, apply a colour grade inspired by ${p.as}. This is a colour grade only: keep the ${keep} exactly as they are.`,
+      '',
+      `The look is ${p.look}. ${bw?'Tonally it is':'The palette moves toward'} ${p.pal}. ${cap(end(p.tone))} ${cap(end(p.tex))}${p.key?' The idea behind it: '+p.key.charAt(0).toLowerCase()+p.key.slice(1):''}`,
+      ...sceneLines(p,sc).length?['',sceneLines(p,sc).join(' ')]:[],
+      '',
+      `${strengthLine(k)} ${lightLine(sc)}`,
+      '',
+      `Avoid ${p.avoid}. Return the whole image at its original aspect ratio and resolution.`
+    ].join('\n');
+  }
+  if(model==='gpt'){
+    const lines=[
+      bw?'Edit the attached photo. Convert it to black and white and change ONLY the tone.':'Edit the attached photo. Change ONLY the colour grade.',
+      '',
+      `Reference: ${cap(p.as)}.`,
+      `Look: ${p.look}.`,
+      `${bw?'Tonal range':'Palette'}: ${p.pal}.`,
+      `Tone: ${p.tone}.`,
+    ];
+    if(p.key)lines.push(`Principle: ${p.key}`);
+    if(sc.person==='1')lines.push(`Skin: ${p.skin}; believable and consistent across faces.`);
+    lines.push(`Texture: ${p.tex}.`);
+    if(sc.time==='night')lines.push('Scene: night — keep practical lights as the brightest points.');
+    else if(sc.where==='out')lines.push('Scene: daylight exterior — carry the palette through sky, foliage and ground.');
+    else lines.push('Scene: interior — grade window light and lamps consistently.');
+    lines.push(`Strength: ${strengthWord(k)}.`,'',
+      `Preserve exactly: ${keep}. Do not add, remove or redraw anything. Do not re-render or retouch faces. ${lightLine(sc,true)}`,
+      '',
+      `Avoid: ${p.avoid}${bw?'.':'; and no overall yellow or sepia cast unless the palette above asks for it.'}`);
+    return lines.join('\n');
+  }
+  // FLUX.2: compact, direct verb, hex colours, explicit "keep".
+  const skin=sc.person==='1'?` Skin ${p.skin}.`:'';
+  const scene=sc.time==='night'?' Keep practical lights as the brightest points.':'';
+  const how={subtle:'subtly',clear:'clearly but naturally',strong:'strongly',full:'at full strength'}[strengthWord(k)];
+  return `${bw?'Convert this photo to black and white to match':'Change the colour grading of this photo to match'} ${p.as}: ${p.look}. ${bw?'Tonal range':'Palette'}: ${p.pal} (${p.sw.join(', ')}). ${cap(end(p.tone))}${skin} ${cap(end(p.tex))}${scene} Apply the look ${how}. Keep the exact same composition, framing, subject identity, facial features, pose, clothing and every object — only ${bw?'tone changes':'colour and tone change'}. ${lightLine(sc,true)} Avoid ${p.avoid}.`;
+}
+
+// ---------- Render UI ----------
+function renderPresets(){
+  const nav=$('presets');nav.innerHTML='';
+  if(!visible.length){nav.innerHTML='<div class="empty">No preset matches.</div>';return}
+  for(const [key,title] of Object.entries(CATS)){
+    const items=visible.filter(p=>p.cat===key);if(!items.length)continue;
+    const h=document.createElement('div');h.className='cat label';h.innerHTML=`<span>${title}</span><span>${items.length}</span>`;nav.append(h);
+    for(const p of items){
+      const b=document.createElement('button');b.className='pre';b.dataset.id=p.id;
+      b.setAttribute('aria-current',p.id===state.preset);
+      b.innerHTML=`<canvas width="${thumbSize[0]}" height="${thumbSize[1]}" data-id="${p.id}"></canvas><span><b>${p.name}</b><small>${p.ref}</small></span>`;
+      b.onclick=()=>pick(p.id);
+      nav.append(b);
+    }
+  }
+  drawPresetThumbs();
+}
+function renderInfo(){
+  const p=cur();
+  $('pcat').textContent={dir:'Director',tv:'Series',film:'Film',photo:'Photographer',stock:'Film stock'}[p.cat];
+  $('pname').textContent=p.name;
+  $('pref').textContent=p.ref;
+  $('psw').innerHTML=p.sw.map(c=>`<i style="background:${c}" title="${c}"></i>`).join('');
+  $('plook').textContent=cap(p.look)+'.';
+  $('pkey').hidden=!p.key;$('pkey').textContent=p.key?`“${p.key.replace(/\.$/,'')}”`:'';
+  $('psrc').hidden=!p.src;$('psrc').innerHTML=p.src?`Source <a href="${p.src[1]}" target="_blank" rel="noopener">${p.src[0]}</a>`:'';
+}
+function renderModels(){
+  $('models').innerHTML=MODELS.map(m=>`<button data-m="${m.id}" aria-pressed="${m.id===state.model}">${m.name}<small>${m.by}</small></button>`).join('');
+  for(const b of $('models').children)b.onclick=()=>{state.model=b.dataset.m;store.set('model',state.model);renderModels();renderPrompt();writeHash()};
+}
+function renderPrompt(){
+  const t=build(state.model);$('text').value=t;
+  $('count').textContent=`${t.length} characters`;
+}
+function renderThumbs(){
+  const box=$('thumbs');
+  box.innerHTML=IMAGES.map(i=>`<button class="thumb" data-id="${i.id}" aria-pressed="${i.id===state.image}"><span class="img" style="background-image:url('${imgUrl(i.src,240)}')"></span><span>${i.label}</span></button>`).join('')
+    +(custom?`<button class="thumb" data-id="custom" aria-pressed="${state.image==='custom'}"><span class="img" style="background-image:url('${custom.url}')"></span><span>Yours</span></button>`
+            :`<button class="thumb add" data-id="add" title="Use your own image"><span class="img">+</span><span>Your image</span></button>`);
+  for(const b of box.children)b.onclick=()=>b.dataset.id==='add'?$('file').click():setImage(b.dataset.id);
+}
+function renderCredit(){
+  const m=IMAGES.find(i=>i.id===state.image);
+  $('credit').innerHTML=m?`Photo <a href="https://unsplash.com/@${m.u}?utm_source=delta_e_lab&utm_medium=referral" target="_blank" rel="noopener">${m.by}</a> / <a href="https://unsplash.com/?utm_source=delta_e_lab&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a>`:(custom?custom.name:'');
+}
+function renderScene(){
+  for(const seg of document.querySelectorAll('.seg')){
+    const key=seg.dataset.key;
+    for(const b of seg.children)b.setAttribute('aria-pressed',state.scene[key]===b.dataset.v);
+  }
+  $('kout').textContent=cap(strengthWord(state.k));
+}
+for(const seg of document.querySelectorAll('.seg'))
+  for(const b of seg.children)b.onclick=()=>{state.scene[seg.dataset.key]=b.dataset.v;renderScene();renderPrompt()};
+$('k').oninput=e=>{state.k=+e.target.value;renderScene();renderPrompt();draw()};
+$('k').onchange=()=>drawPresetThumbs();
+
+function pick(id){
+  state.preset=id;
+  for(const b of document.querySelectorAll('.pre'))b.setAttribute('aria-current',b.dataset.id===id);
+  renderInfo();renderPrompt();draw();writeHash();
+}
+
+// ---------- Search ----------
+$('q').oninput=e=>{
+  const q=e.target.value.trim().toLowerCase();
+  visible=q?PRESETS.filter(p=>[p.name,p.ref,p.look,p.pal,CATS[p.cat]].join(' ').toLowerCase().includes(q)):PRESETS.slice();
+  renderPresets();
+};
+
+// ---------- Copy ----------
+let tt;
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1400)}
+async function copy(){
+  try{await navigator.clipboard.writeText($('text').value)}catch(e){$('text').select();document.execCommand('copy')}
+  toast(`Copied — ${MODELS.find(m=>m.id===state.model).name}`);
+}
+$('copy').onclick=copy;
+$('text').oninput=()=>$('count').textContent=`${$('text').value.length} characters`;
+
+// ---------- Own image ----------
+function useFile(f){
+  if(!f||!f.type.startsWith('image/'))return;
+  if(custom)URL.revokeObjectURL(custom.url);
+  custom={url:URL.createObjectURL(f),name:f.name};
+  setImage('custom');
+}
+$('file').onchange=e=>useFile(e.target.files[0]);
+let dragN=0;
+addEventListener('dragenter',e=>{if([...e.dataTransfer.types].includes('Files')){dragN++;$('drop').hidden=false}});
+addEventListener('dragleave',()=>{if(--dragN<=0){dragN=0;$('drop').hidden=true}});
+addEventListener('dragover',e=>e.preventDefault());
+addEventListener('drop',e=>{e.preventDefault();dragN=0;$('drop').hidden=true;useFile(e.dataTransfer.files[0])});
+addEventListener('paste',e=>{const f=[...(e.clipboardData?.files||[])][0];if(f)useFile(f)});
+
+// ---------- Keys ----------
+let held=null;
+addEventListener('keydown',e=>{
+  const typing=/INPUT|TEXTAREA/.test(document.activeElement.tagName);
+  if(e.key==='/'&&!typing){e.preventDefault();$('q').focus();return}
+  if(e.key==='Escape'&&document.activeElement===$('q')){$('q').value='';$('q').dispatchEvent(new Event('input'));$('q').blur();return}
+  if(typing||e.metaKey||e.ctrlKey||e.altKey)return;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault();
+    const list=visible.length?visible:PRESETS, i=list.findIndex(p=>p.id===state.preset);
+    const n=list[(i+(e.key==='ArrowDown'?1:-1)+list.length)%list.length];
+    pick(n.id);document.querySelector(`.pre[data-id="${n.id}"]`)?.scrollIntoView({block:'nearest'});
+  }else if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+    e.preventDefault();
+    const ids=IMAGES.map(i=>i.id).concat(custom?['custom']:[]), i=ids.indexOf(state.image);
+    setImage(ids[(i+(e.key==='ArrowRight'?1:-1)+ids.length)%ids.length]);
+  }else if(e.key===' '){
+    e.preventDefault();if(!e.repeat){held=state.split;setSplit(1)}
+  }else if(e.key==='c'||e.key==='C'){copy()}
+});
+addEventListener('keyup',e=>{if(e.key===' '&&held!=null){setSplit(held);held=null}});
+
+// ---------- Theme ----------
+function setTheme(t){document.documentElement.dataset.theme=t;store.set('theme',t);
+  for(const b of document.querySelectorAll('.themes button'))b.setAttribute('aria-pressed',b.dataset.theme===t);
+  document.querySelector('meta[name=theme-color]').content=t==='white'?'#ffffff':'#000000'}
+for(const b of document.querySelectorAll('.themes button'))b.onclick=()=>setTheme(b.dataset.theme);
+
+// ---------- URL hash: #preset/image/model ----------
+function writeHash(){const img=state.image==='custom'?IMAGES[0].id:state.image;history.replaceState(null,'',`#${state.preset}/${img}/${state.model}`)}
+function readHash(){
+  const [p,i,m]=location.hash.slice(1).split('/');
+  if(PRESETS.some(x=>x.id===p))state.preset=p;
+  if(IMAGES.some(x=>x.id===i))state.image=i;
+  if(MODELS.some(x=>x.id===m))state.model=m;
+}
+
+// ---------- Start ----------
+setTheme(store.get('theme','black'));
+readHash();
+$('k').value=state.k;
+renderPresets();renderInfo();renderModels();renderScene();renderPrompt();
+setImage(state.image);
+document.querySelector(`.pre[data-id="${state.preset}"]`)?.scrollIntoView({block:'center'});
+window.deltaE={state,PRESETS,build,pick,setImage};
+</script>
+</body>
+</html>
