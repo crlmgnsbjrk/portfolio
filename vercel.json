@@ -1,6 +1,7 @@
 {
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/labs/quarks", "destination": "https://quarks-chi.vercel.app/" }
+    { "source": "/labs/quarks", "destination": "https://quarks-chi.vercel.app/" },
+    { "source": "/labs/delta-e", "destination": "https://delta-e.vercel.app/" }
   ]
 }
