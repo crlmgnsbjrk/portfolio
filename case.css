@@ -1,7 +1,7 @@
 /* Case pages: the head with details, then the work, then big links to the other cases */
 main.project{ display:block; }
 .x-top{ margin-bottom:var(--gap); }
-.x-head{ display:grid; grid-template-columns:repeat(12,1fr); column-gap:var(--gap); padding-top:clamp(16px,4vw,64px); margin-bottom:clamp(48px,6vw,96px); align-items:start; }
+.x-head{ display:grid; grid-template-columns:repeat(12,1fr); column-gap:var(--gap); padding-top:var(--head-above); margin-bottom:var(--head-below); align-items:start; }
 .project h1.x-title{ grid-column:1 / span 5; grid-row:1; margin:0 0 24px; font-size:clamp(36px,5.2vw,76px); font-weight:400; line-height:1; }
 .x-title span{ display:block; }
 .x-info{ grid-column:7 / -1; grid-row:1 / span 2; }

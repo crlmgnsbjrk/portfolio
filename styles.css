@@ -82,6 +82,8 @@
   --max:none;
   --gap:12px;
   --hero-after: clamp(64px, 10vw, 160px);  /* space under the big intro text */
+  --head-above: clamp(32px, 7vw, 112px);   /* the top text on every page: the same air above */
+  --head-below: clamp(80px, 13vw, 208px);  /* and below */
   --link-color:#3604FE;
 }
 
@@ -206,8 +208,8 @@ h3{
   font-weight: 300;
   line-height:1.05;
   /* air above and below that grows with the screen; padding on top so it adds to the header's margin */
-  padding-top: clamp(16px, 4vw, 64px);
-  margin: 0 0 var(--hero-after);
+  padding-top: var(--head-above);
+  margin: 0 0 var(--head-below);
   letter-spacing:0;
   max-width: 30ch;
   grid-column: 1 / -1;
@@ -466,10 +468,6 @@ h3{
 /* Slideshow of project images under the contact details */
 .contact-media{
   margin-top: var(--hero-after);
-}
-
-.hero:has(+ .contact-meta){
-  margin-bottom: 20px;
 }
 
 .contact-meta{
@@ -962,12 +960,6 @@ main.project + footer{
 
 /* About: intro under the opening line, large and wide like a studio statement. One rhythm for the
    page: --hero-after between the blocks, the same smaller step between the opening line and the intro. */
-.hero:has(+ .about-intro),
-.hero:has(+ picture > .portrait-inline),
-.hero:has(+ .portrait-inline){
-  margin-bottom: clamp(24px, 3vw, 48px);
-}
-
 .about-intro{
   max-width: 75%;
   margin-bottom: clamp(48px, 5vw, 80px);
