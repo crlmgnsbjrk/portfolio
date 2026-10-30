@@ -227,7 +227,7 @@
     label.className = "x-grade-label";
     canvas.parentElement.style.position = "relative";
     canvas.parentElement.appendChild(label);
-    const PHOTOS = ["photo-1630754157861-e4ffc56bc000", "photo-1784075292370-86c2e07dac41"];
+    const PHOTOS = ["photo-1650884113571-b9f767357115", "photo-1625585675064-7b8cdcd0ca49", "photo-1516571802202-335011e323a7"];
     const LOOKS = ["Nicolas Winding Refn", "Wong Kar-wai", "Blade Runner", "Barry Jenkins", "Mad Max: Fury Road", "The Matrix"];
     const vs = "attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}";
     const fs = `precision highp float;varying vec2 v;uniform sampler2D img;uniform vec2 cover;
@@ -305,7 +305,7 @@
       gl.uniform3f(U("hi"), P.hi[0] * 2.2, P.hi[1] * 2.2, P.hi[2] * 2.2);
     };
     return (time) => {
-      if (!textures[0] || !textures[1] || !grades) return;
+      if (PHOTOS.some((_, i) => !textures[i]) || !grades) return;
       const round = Math.floor(time / LOOP);
       let rest = time - round * LOOP, beat = 0;
       while (rest >= BEATS[beat]) rest -= BEATS[beat++];
