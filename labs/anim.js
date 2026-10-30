@@ -329,9 +329,7 @@
       gl.scissor(0, 0, Math.round(canvas.width * sweep), canvas.height);
       draw(n + 1);
       gl.disable(gl.SCISSOR_TEST);
-      // The rest at the end of each round carries the lab's own name
-      const last = beat === BEATS.length - 1;
-      label.textContent = last ? "ΔE Grade Lab" : LOOKS[(sweep > 0.5 ? n + 1 : n) % LOOKS.length];
+      label.textContent = LOOKS[(sweep > 0.5 ? n + 1 : n) % LOOKS.length];
     };
   }
 
