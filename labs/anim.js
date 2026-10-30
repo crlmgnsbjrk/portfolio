@@ -227,7 +227,7 @@
     label.className = "x-grade-label";
     canvas.parentElement.style.position = "relative";
     canvas.parentElement.appendChild(label);
-    const PHOTOS = ["photo-1650884113571-b9f767357115", "photo-1625585675064-7b8cdcd0ca49", "photo-1516571802202-335011e323a7"];
+    const PHOTOS = ["photo-1650884113571-b9f767357115", "photo-1625585675064-7b8cdcd0ca49", "photo-1678720176245-64c184188b54"];
     const LOOKS = ["Nicolas Winding Refn", "Wong Kar-wai", "Blade Runner", "Barry Jenkins", "Mad Max: Fury Road", "The Matrix"];
     const vs = "attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}";
     const fs = `precision highp float;varying vec2 v;uniform sampler2D img;uniform vec2 cover;
