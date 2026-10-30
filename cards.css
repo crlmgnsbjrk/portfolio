@@ -1,7 +1,7 @@
 /* Cards on the start page and Work: name and a small table under each image */
 .x-card{ margin-top:10px; font-size:13px; color:var(--text); }
 .x-top{ display:flex; justify-content:space-between; gap:var(--gap); margin-bottom:12px; }
-.x-n{ font-size:clamp(24px,2.6vw,38px); font-weight:400; line-height:1.1; }
+.x-n{ font-size:clamp(24px,2.6vw,28px); font-weight:400; line-height:1.1; }
 .x-d{ margin:0; border-top:1px solid var(--line); }
 .x-d > div{ display:grid; grid-template-columns:1fr 2fr; column-gap:var(--gap); padding:4px 0 5px; border-bottom:1px solid var(--line); }
 .x-d dt{ color:var(--muted); }
