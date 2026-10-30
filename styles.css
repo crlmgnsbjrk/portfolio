@@ -770,14 +770,14 @@ video[data-lqip]{
 
 footer{
   position: fixed;
-  left: 12px;
-  right: 12px;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 10;
   display: flex;
   align-items: baseline;
   gap: 24px;
-  padding: 10px 0 12px;
+  padding: 10px 12px 12px;
   font-size: 13px;
   color: var(--muted);
   background: var(--bg);
@@ -857,6 +857,11 @@ footer > div{
   width: auto;
 }
 
+.text-mode footer{
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .text-mode header{
   display: block;
 }
@@ -928,6 +933,8 @@ footer > div{
 main.project + footer{
   position: static;
   padding-top: 48px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .wrap:has(> main.project){
