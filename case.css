@@ -1,0 +1,26 @@
+/* Case pages: the head with details, then the work, then big links to the other cases */
+main.project{ display:block; }
+.x-top{ margin-bottom:var(--gap); }
+.x-head{ display:grid; grid-template-columns:repeat(12,1fr); column-gap:var(--gap); padding-top:clamp(16px,4vw,64px); margin-bottom:clamp(48px,6vw,96px); align-items:start; }
+.project h1.x-title{ grid-column:1 / span 6; margin:0; font-size:clamp(36px,5.2vw,76px); font-weight:400; line-height:1; }
+.x-title span{ display:block; }
+.x-info{ grid-column:7 / -1; }
+.x-details-label{ margin:0 0 8px; font-weight:500; }
+.x-details{ margin:0 0 32px; border-top:1px solid var(--line); }
+.x-details .row{ display:grid; grid-template-columns:1fr 1fr; column-gap:var(--gap); padding:4px 0 5px; border-bottom:1px solid var(--line); }
+.x-details dt{ color:var(--muted); }
+.x-details dd{ margin:0; white-space:pre-line; }
+.x-details a{ color:var(--link-color); }
+.x-text{ margin:0; max-width:56ch; color:var(--muted); text-wrap:pretty; }
+/* Between cases: big, on the same two columns as the title and the details */
+.x-pager{ display:grid; grid-template-columns:repeat(12,1fr); column-gap:var(--gap); margin:var(--hero-after) 0 0; padding-top:12px; border-top:1px solid var(--line); }
+.x-pager a{ color:var(--text); text-decoration:none; }
+.x-pager a:hover{ color:var(--link-color); }
+.x-pager .prev{ grid-column:1 / span 6; }
+.x-pager .next{ grid-column:7 / -1; text-align:right; }
+.x-pager small{ display:block; margin-bottom:8px; font-size:13px; color:var(--muted); }
+.x-pager b{ display:block; font-size:clamp(36px,5.2vw,76px); font-weight:400; line-height:1; }
+@media (max-width:800px){
+  .project h1.x-title,.x-info{ grid-column:1 / -1; }
+  .x-info{ margin-top:32px; }
+}
