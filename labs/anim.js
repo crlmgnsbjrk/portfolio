@@ -228,7 +228,7 @@
     canvas.parentElement.style.position = "relative";
     canvas.parentElement.appendChild(label);
     const PHOTOS = ["photo-1650884113571-b9f767357115", "photo-1625585675064-7b8cdcd0ca49", "photo-1678720176245-64c184188b54"];
-    const LOOKS = ["Nicolas Winding Refn", "Wong Kar-wai", "Blade Runner", "Barry Jenkins", "Mad Max: Fury Road", "The Matrix"];
+    const LOOKS = ["Nicolas Winding Refn", "Wong Kar-wai", "Blade Runner", "Barry Jenkins", "Mad Max: Fury Road", "The Matrix", "Wes Anderson", "Suspiria", "Chernobyl", "Kodachrome 64", "Mr. Robot", "Saul Leiter"];
     const vs = "attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}";
     const fs = `precision highp float;varying vec2 v;uniform sampler2D img;uniform vec2 cover;
       uniform float t,g,s,c,l,w,gr,vg,split,time;uniform vec3 sh,hi;
