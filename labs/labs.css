@@ -36,17 +36,20 @@
   padding:72px 0 56px; background:var(--bg);
   grid-template-rows:auto auto; align-content:center;
 }
+@media (max-width:800px){
+  .x-lab{ padding-top:56px; padding-bottom:40px; }
+}
 /* Short phones: a lab doesn't fit one screen, so they scroll as usual */
-@media (max-width:800px) and (max-height:700px){
+@media (max-width:800px) and (max-height:640px){
   .x-lab{ position:static; height:auto; padding-top:16px; padding-bottom:48px; }
 }
 
 @media (max-width:800px){
   .x-lab{ grid-template-rows:none; }
-  .x-title{ grid-column:1 / -1; grid-row:1; margin-bottom:16px; font-size:clamp(28px,8.6vw,64px); white-space:nowrap; }
+  .x-title{ grid-column:1 / -1; grid-row:2; margin:16px 0 8px; font-size:21px; line-height:1.1; white-space:nowrap; }
   .x-title br{ display:none; }
-  .x-media{ grid-column:1 / -1; grid-row:2; margin-bottom:0; }
-  .x-info{ grid-column:1 / -1; grid-row:3; padding-top:16px; }
+  .x-media{ grid-column:1 / -1; grid-row:1; margin-bottom:0; }
+  .x-info{ grid-column:1 / -1; grid-row:3; padding-top:0; }
 }
 
 /* Each lab has its own colour, edge to edge */
