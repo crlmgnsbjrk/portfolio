@@ -1124,7 +1124,7 @@ main.project + footer{
 /* Menu: Labs stands a little apart, after Contact */
 .nav-sep{
   margin: 0 4px;
-  color: var(--muted);
+  visibility: hidden;
 }
 
 @media (max-width: 480px){
