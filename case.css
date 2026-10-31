@@ -9,7 +9,7 @@ main.project{ display:block; }
 .x-details{ margin:0; border-top:1px solid var(--line); }
 .x-details .row{ display:grid; grid-template-columns:1fr 1fr; column-gap:var(--gap); padding:4px 0 5px; border-bottom:1px solid var(--line); }
 .x-details dt{ color:var(--muted); }
-.x-details dd{ margin:0; white-space:pre-line; }
+.x-details dd{ margin:0; }
 .x-details a{ color:var(--link-color); }
 .x-text{ grid-column:1 / span 4; grid-row:2; margin:0; color:var(--muted); text-wrap:pretty; }
 /* Between cases: big, on the same two columns as the title and the details */
@@ -22,4 +22,5 @@ main.project{ display:block; }
 @media (max-width:800px){
   .project h1.x-title,.x-text,.x-info{ grid-column:1 / -1; grid-row:auto; }
   .x-info{ margin-top:32px; }
+  .x-pager b{ font-size:21px; line-height:1.1; }
 }

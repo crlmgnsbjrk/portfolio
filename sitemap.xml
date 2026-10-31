@@ -2,78 +2,59 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.cmbjork.com/</loc>
-    <lastmod>2026-10-12</lastmod>
   </url>
   <url>
-    <loc>https://www.cmbjork.com/work.html</loc>
-    <lastmod>2026-10-12</lastmod>
+    <loc>https://www.cmbjork.com/work</loc>
   </url>
   <url>
     <loc>https://www.cmbjork.com/labs</loc>
-    <lastmod>2026-10-29</lastmod>
   </url>
   <url>
     <loc>https://www.cmbjork.com/labs/quarks</loc>
-    <lastmod>2026-10-30</lastmod>
   </url>
   <url>
     <loc>https://www.cmbjork.com/labs/ductus</loc>
-    <lastmod>2026-10-30</lastmod>
   </url>
   <url>
     <loc>https://www.cmbjork.com/labs/delta-e</loc>
-    <lastmod>2026-10-30</lastmod>
   </url>
   <url>
-    <loc>https://www.cmbjork.com/about.html</loc>
-    <lastmod>2026-10-12</lastmod>
+    <loc>https://www.cmbjork.com/about</loc>
   </url>
   <url>
-    <loc>https://www.cmbjork.com/contact.html</loc>
-    <lastmod>2026-10-12</lastmod>
+    <loc>https://www.cmbjork.com/contact</loc>
   </url>
   <url>
-    <loc>https://www.cmbjork.com/type.html</loc>
-    <lastmod>2026-10-12</lastmod>
+    <loc>https://www.cmbjork.com/type</loc>
   </url>
   <url>
     <loc>https://www.cmbjork.com/work/northvolt</loc>
-    <lastmod>2026-10-12</lastmod>
   </url>
   <url>
     <loc>https://www.cmbjork.com/work/sonder-labs</loc>
-    <lastmod>2026-10-12</lastmod>
   </url>
   <url>
     <loc>https://www.cmbjork.com/work/greenely</loc>
-    <lastmod>2026-10-12</lastmod>
   </url>
   <url>
     <loc>https://www.cmbjork.com/work/vanitas</loc>
-    <lastmod>2026-10-12</lastmod>
   </url>
   <url>
-    <loc>https://www.cmbjork.com/type-almost-swiss.html</loc>
-    <lastmod>2026-10-12</lastmod>
+    <loc>https://www.cmbjork.com/type-almost-swiss</loc>
   </url>
   <url>
-    <loc>https://www.cmbjork.com/type-spacjinx.html</loc>
-    <lastmod>2026-10-12</lastmod>
+    <loc>https://www.cmbjork.com/type-spacjinx</loc>
   </url>
   <url>
-    <loc>https://www.cmbjork.com/type-askew.html</loc>
-    <lastmod>2026-10-12</lastmod>
+    <loc>https://www.cmbjork.com/type-askew</loc>
   </url>
   <url>
-    <loc>https://www.cmbjork.com/type-seamless.html</loc>
-    <lastmod>2026-10-12</lastmod>
+    <loc>https://www.cmbjork.com/type-seamless</loc>
   </url>
   <url>
-    <loc>https://www.cmbjork.com/type-plainspoken.html</loc>
-    <lastmod>2026-10-12</lastmod>
+    <loc>https://www.cmbjork.com/type-plainspoken</loc>
   </url>
   <url>
     <loc>https://www.cmbjork.com/labs/u-plus</loc>
-    <lastmod>2026-10-30</lastmod>
   </url>
 </urlset>
