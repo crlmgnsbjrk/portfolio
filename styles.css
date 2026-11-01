@@ -803,6 +803,13 @@ footer > div{
   }
 }
 
+/* A fixed box per mark, so the glyphs can change without nudging the text around them */
+.contact-marquee .tick{
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+}
+
 /* Status bar while images load */
 .load-meter{
   position: fixed;

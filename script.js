@@ -31,6 +31,7 @@
   initTileShows();
   initBounce();
   initSoundToggles();
+  initTicks();
 
   // Press T: the whole site as a 90s text-only browser would render it
   function initTextMode() {
@@ -128,6 +129,19 @@
         })();
       });
     });
+  }
+
+  // The marks between the marquee's items take turns being each of the glyphs
+  function initTicks() {
+    const marks = document.querySelectorAll(".contact-marquee .tick");
+    if (!marks.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // \uFE0E: draw as text, never as a colour emoji
+    const glyphs = ["✺", "✴\uFE0E", "⚡\uFE0E", "☯\uFE0E", "♥\uFE0E", "✩"];
+    let turn = 0;
+    window.setInterval(() => {
+      turn++;
+      marks.forEach((mark, i) => { mark.textContent = glyphs[(i + turn) % glyphs.length]; });
+    }, 700);
   }
 
   // Muted autoplay films (video[data-sound]) get a button that turns the sound on and starts over
