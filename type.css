@@ -324,6 +324,29 @@ body.type-page{
   caret-color: var(--link-color);
 }
 
+.tester-ghost{
+  position: relative;
+  color: transparent;
+}
+
+.tester-ghost::before{
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: var(--link-color);
+}
+
+.tester-ghost.is-blinking::before{
+  animation: tester-blink 1s step-end infinite;
+}
+
+@keyframes tester-blink{
+  50%{ opacity: 0; }
+}
+
 .tester-hint{
   margin: 0;
   font-size: 13px;

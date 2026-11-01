@@ -157,6 +157,35 @@
   });
   setWeight(STYLES.some((s) => s[1] === 400) ? 400 : STYLES[0][1]);
 
+  // Until someone tries it themselves, a caret deletes the last letters and types them back.
+  // The deleted letters stay in the layout, invisible, so the lines never rewrap.
+  const full = text.textContent;
+  if (!reducedMotion && full.length > 5) {
+    const shown = document.createTextNode(full);
+    const ghost = document.createElement("span");
+    ghost.className = "tester-ghost is-blinking";
+    text.replaceChildren(shown, ghost);
+    let n = 0, dir = 1, timer;
+    const tick = () => {
+      n += dir;
+      shown.data = full.slice(0, full.length - n);
+      ghost.textContent = full.slice(full.length - n);
+      const turn = n === 5 || n === 0;
+      if (turn) dir = -dir;
+      ghost.classList.toggle("is-blinking", turn);
+      timer = window.setTimeout(tick, n === 5 ? 700 : n === 0 ? 3000 : dir > 0 ? 90 : 110 + Math.random() * 110);
+    };
+    timer = window.setTimeout(tick, 2500);
+    const stop = () => {
+      window.clearTimeout(timer);
+      text.textContent = full;
+      text.removeEventListener("mousedown", stop);
+      text.removeEventListener("focus", stop);
+    };
+    text.addEventListener("mousedown", stop);  // before the browser places the real caret
+    text.addEventListener("focus", stop);
+  }
+
   // Styles list: click a row to try that weight in the tester
   const list = document.querySelector(".styles-list");
   STYLES.forEach(([label, w]) => {
