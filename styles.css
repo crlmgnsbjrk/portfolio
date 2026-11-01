@@ -678,6 +678,18 @@ video[data-lqip]{
   color: var(--link-color);
 }
 
+/* Pause: two thin bars, the glyph is too heavy next to ▶ and ♪ */
+.play-toggle.is-playing::before{
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 11px;
+  margin: 0 1px;  /* as wide as ▶, so ♪ beside it stays put */
+  border: solid currentColor;
+  border-width: 0 3px;
+  box-sizing: border-box;
+}
+
 .sound-toggle.is-muted{
   text-decoration: line-through;
 }

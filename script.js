@@ -131,8 +131,8 @@
   }
 
   // Muted autoplay films (video[data-sound]) get a button that turns the sound on and starts over
-  // Films: a small control box at the bottom right. Films marked data-play wait for a click on ▶
-  // (films with sound then start with sound); ♪ turns sound on or off on films that have it.
+  // Films: a small control box at the bottom right. Films marked data-play run muted while in view,
+  // until someone pauses them or they end; ♪ turns sound on or off on films that have it.
   function initSoundToggles() {
     document.querySelectorAll("video[data-sound], video[data-play]").forEach((video) => {
       const box = document.createElement("div");
@@ -142,18 +142,22 @@
         play.type = "button";
         play.className = "sound-toggle play-toggle";
         const show = () => {
-          play.textContent = video.paused ? "▶" : "❚❚";
+          play.textContent = video.paused ? "▶" : "";
+          play.classList.toggle("is-playing", !video.paused);
           play.setAttribute("aria-label", video.paused ? "Play" : "Pause");
           play.title = play.getAttribute("aria-label");
         };
+        let held = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const toggle = () => {
-          if (video.paused) {
-            if (video.hasAttribute("data-sound")) video.muted = false;
-            video.play();
-          } else {
-            video.pause();
-          }
+          held = !video.paused;
+          if (video.paused) video.play();
+          else video.pause();
         };
+        video.addEventListener("ended", () => { held = true; });
+        new IntersectionObserver(([entry]) => {
+          if (!entry.isIntersecting) video.pause();
+          else if (!held) video.play().catch(() => {});  // blocked (iOS low power): the ▶ is still there
+        }, { threshold: 0.5 }).observe(video);
         play.addEventListener("click", toggle);
         video.addEventListener("click", toggle);
         video.style.cursor = "pointer";
@@ -179,7 +183,7 @@
         label();
         sound.addEventListener("click", () => {
           video.muted = !video.muted;
-          if (!video.muted && !video.hasAttribute("data-play")) {
+          if (!video.muted) {
             video.currentTime = 0;
             video.play();
           }
