@@ -74,17 +74,17 @@
       timer = reducedMotion ? null : window.setInterval(step, ms);
     };
     const family = getComputedStyle(link).fontFamily;
-    const preload = () => weights.forEach((w) => document.fonts.load(`${w} 100px ${family}`));
-    if (always) {
-      preload();
-      run(180);
-    }
+    // Resolves when every weight is in, so the flipbook never shows a weight still loading
+    const preload = () => Promise.allSettled(weights.map((w) => document.fonts.load(`${w} 100px ${family}`)));
+    if (always) preload().then(() => run(180));
     // Touch screens skip the hover: on iOS, changing the text on touch would swallow the tap
     if (!canHover) return;
 
     link.addEventListener("mouseenter", () => {
-      preload();
-      if (compact(el)) return;
+      if (compact(el)) {
+        preload();
+        return;
+      }
       if (lines.length) {
         let n = Math.floor(Math.random() * lines.length);
         if (n === last && lines.length > 1) n = (n + 1) % lines.length;
@@ -96,7 +96,9 @@
         still();
         fit(el);
       }
-      run(90);
+      preload().then(() => {
+        if (link.matches(":hover")) run(90);
+      });
     });
     link.addEventListener("mouseleave", () => {
       if (!el.dataset.hovering && !timer) return;
